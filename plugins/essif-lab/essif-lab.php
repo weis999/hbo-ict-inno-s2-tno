@@ -6,4 +6,12 @@
  * Version: 1.0
  * Author: Duur Klop, Luuk van Houdt, Ruben Sikkens, Ufuk Altinçöp en Weis Mateen
  */
-echo "Hello world";
+
+include_once dirname( __FILE__ ) . '/options.php';
+
+add_action( 'the_content', 'my_thank_you_text' );
+
+function my_thank_you_text ( $content ) {
+    $options = get_option( 'wporg_options' );
+    return $content .= '<p>'.esc_attr($options[ 'wporg_field_home_text']).'</p>';
+}
