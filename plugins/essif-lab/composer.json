@@ -1,0 +1,10 @@
+{
+    "name": "tno/essif-lab",
+    "type": "project",
+    "license": "mit",
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {"TNO\\EssifLab\\": "src/"}
+    }
+}

@@ -7,7 +7,7 @@
  * Author: Duur Klop, Luuk van Houdt, Ruben Sikkens, Ufuk Altinçöp en Weis Mateen
  */
 
-include_once dirname( __FILE__ ) . '/options.php';
+include_once dirname(__FILE__) . '/options.php';
 
 add_action( 'the_content', 'my_thank_you_text' );
 
