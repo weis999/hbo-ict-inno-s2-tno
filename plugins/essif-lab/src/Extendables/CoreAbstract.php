@@ -1,12 +1,11 @@
 <?php
 
-namespace LSVH\WordPress\FixContentLinks\Extendables;
+namespace TNO\EssifLab\Extendables;
 
 defined('ABSPATH') or die();
 
-use LSVH\WordPress\FixContentLinks\Contracts\CoreInterface;
-use LSVH\WordPress\FixContentLinks\Contracts\CoreSettingsInterface;
-use LSVH\WordPress\DynamicConfig\Init as DynamicConfig;
+use TNO\EssifLab\Contracts\CoreInterface;
+use TNO\EssifLab\Contracts\CoreSettingsInterface;
 
 abstract class CoreAbstract implements CoreInterface, CoreSettingsInterface
 {
@@ -53,7 +52,7 @@ abstract class CoreAbstract implements CoreInterface, CoreSettingsInterface
     private $options = [];
 
     /**
-     * All plugin data what initiated the plugin.
+     * All plugin data that initiated the plugin.
      *
      * @var array
      */
@@ -134,9 +133,7 @@ abstract class CoreAbstract implements CoreInterface, CoreSettingsInterface
     {
         $options = empty($this->options) ? [] : $this->options;
         return array_merge([
-            self::FIELD_TYPE => $this->get_option_default(self::FIELD_TYPE),
-            self::FIELD_PATH => $this->get_option_default(self::FIELD_PATH),
-            self::FIELD_EXCLUDE => $this->get_option_default(self::FIELD_EXCLUDE),
+            self::FIELD_MESSAGE => $this->get_option_default(self::FIELD_MESSAGE),
         ], $options);
     }
 
@@ -180,8 +177,7 @@ abstract class CoreAbstract implements CoreInterface, CoreSettingsInterface
     /**
      * Batch add or update options
      *
-     * @param string $key
-     * @param null|mixed $value
+     * @param $options
      * @return void
      */
     public function update_options($options) {
@@ -199,13 +195,8 @@ abstract class CoreAbstract implements CoreInterface, CoreSettingsInterface
     public function get_option_default($key)
     {
         switch ($key) {
-            case self::FIELD_TYPE:
-                return 'temporary';
-
-            case self::FIELD_PATH:
-                $without = DynamicConfig::url_without_path();
-                $with = DynamicConfig::url_with_path();
-                return substr($with, strlen($without));
+            case self::FIELD_MESSAGE:
+                return 'Hello, World!';
 
             default:
                 return '';

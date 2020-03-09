@@ -1,6 +1,6 @@
 <?php
 
-namespace LSVH\WordPress\FixContentLinks\Traits;
+namespace TNO\EssifLab\Traits;
 
 defined('ABSPATH') or die();
 

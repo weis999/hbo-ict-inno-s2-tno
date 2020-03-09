@@ -1,12 +1,10 @@
 <?php
 
-namespace LSVH\WordPress\FixContentLinks\Contracts;
+namespace TNO\EssifLab\Contracts;
 
 defined('ABSPATH') or die();
 
 interface CoreSettingsInterface
 {
-    const FIELD_TYPE = 'type';
-    const FIELD_PATH = 'path';
-    const FIELD_EXCLUDE = 'exclude';
+    const FIELD_MESSAGE = 'message';
 }

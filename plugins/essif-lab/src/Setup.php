@@ -1,15 +1,15 @@
 <?php
 
-namespace LSVH\WordPress\FixContentLinks;
+namespace TNO\EssifLab;
 
 defined('ABSPATH') or die();
 
-use LSVH\WordPress\FixContentLinks\Controllers\Activate;
-use LSVH\WordPress\FixContentLinks\Controllers\Admin;
-use LSVH\WordPress\FixContentLinks\Controllers\NotAdmin;
-use LSVH\WordPress\FixContentLinks\Controllers\Deactivate;
-use LSVH\WordPress\FixContentLinks\Extendables\CoreAbstract;
-use LSVH\WordPress\FixContentLinks\Traits\Hooks;
+use TNO\EssifLab\Controllers\Activate;
+use TNO\EssifLab\Controllers\Admin;
+use TNO\EssifLab\Controllers\Deactivate;
+use TNO\EssifLab\Controllers\NotAdmin;
+use TNO\EssifLab\Extendables\CoreAbstract;
+use TNO\EssifLab\Traits\Hooks;
 
 class Setup extends CoreAbstract
 {
@@ -50,13 +50,10 @@ class Setup extends CoreAbstract
         $this->add_action('admin_menu', $component, 'menu');
         $this->add_action('admin_init', $component, 'submit_form');
         $this->add_action('admin_notices', $component, 'admin_notice', 99);
-        $this->add_filter($this->get_domain() . '_save_option_' . self::FIELD_TYPE, $component, 'save_option_type');
     }
 
     private function define_not_admin_hooks() {
         $component = new NotAdmin($this->get_plugin_data());
-        if ($this->get_option(self::FIELD_TYPE) === self::get_option_default(self::FIELD_TYPE)) {
-            $this->add_action('the_content', $component, 'fix_post_content');
-        }
+        $this->add_action('the_content', $component, 'insert_message');
     }
 }
