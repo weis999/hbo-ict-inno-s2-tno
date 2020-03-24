@@ -1,0 +1,72 @@
+version: '3'
+services:
+  app:
+    container_name: wordpress
+    image: wordpress:5.2-php7.3-fpm-alpine
+    depends_on:
+      - app_db
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      net_1:
+
+  app_db:
+    image: mysql:5.7
+    restart: always
+    container_name: wordpress_database
+    networks:
+      net_1:
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: my_root_password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: my_wordpress_password
+
+  wordpress_webserver:
+    image: nginx:1.14-alpine
+    depends_on:
+      - app
+    volumes:
+      - ./nginx/app.conf:/etc/nginx/conf.d/default.conf:rw
+      - wordpress_data:/var/www/html
+    ports:
+      - 80:80
+    networks:
+      net_1:
+
+  wordpress_toolbox:
+    build: ./toolbox/
+    volumes:
+      - wordpress_data:/wordpress
+    working_dir: /wordpress
+    networks:
+      net_1:
+    depends_on:
+      - app_db
+    environment:
+      WORDPRESS_LOCALE: en_US
+      WORDPRESS_DB_HOST: wordpress_database
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: my_wordpress_password
+      WORDPRESS_WEBSITE_TITLE: "My blog"
+      WORDPRESS_WEBSITE_URL: "http://localhost"
+      WORDPRESS_WEBSITE_URL_WITHOUT_HTTP: "localhost"
+      WORDPRESS_WEBSITE_POST_URL_STRUCTURE: "/%year%/%monthnum%/%day%/%postname%/"
+      WORDPRESS_ADMIN_USER: "admin_user"
+      WORDPRESS_ADMIN_PASSWORD: "admin_password"
+      WORDPRESS_ADMIN_EMAIL: "test@example.com"
+
+volumes:
+  db_data: {}
+  wordpress_data: {}
+
+networks:
+  net_1:
+    driver: bridge
+    ipam:
+      driver: default
+      config: 
+       - subnet: 192.168.20.0/24
