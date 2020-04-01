@@ -1,11 +1,11 @@
 <?php
 
-namespace TNO\EssifLab\Extendables;
+namespace TNO\EssifLab\Application\Workflows\Constructors;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Contracts\CoreInterface;
-use TNO\EssifLab\Contracts\CoreSettingsInterface;
+use TNO\EssifLab\Application\Workflows\Constructors\CoreInterface;
+use TNO\EssifLab\Application\Workflows\Constructors\CoreSettingsInterface;
 
 abstract class CoreAbstract implements CoreInterface, CoreSettingsInterface
 {

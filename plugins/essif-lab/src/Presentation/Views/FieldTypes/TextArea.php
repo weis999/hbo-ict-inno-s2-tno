@@ -1,10 +1,10 @@
 <?php
 
-namespace TNO\EssifLab\Models\FieldTypes;
+namespace TNO\EssifLab\Presentation\Views\FieldTypes;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Extendables\FieldAbstract;
+use TNO\EssifLab\Presentation\Themeable\FieldAbstract;
 
 class TextArea extends FieldAbstract
 {

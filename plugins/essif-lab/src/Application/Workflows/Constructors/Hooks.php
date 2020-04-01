@@ -1,6 +1,6 @@
 <?php
 
-namespace TNO\EssifLab\Traits;
+namespace TNO\EssifLab\Application\Workflows\Constructors;
 
 defined('ABSPATH') or die();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace TNO\EssifLab\Contracts;
+namespace TNO\EssifLab\Presentation\Themeable;
 
 defined('ABSPATH') or die();
 

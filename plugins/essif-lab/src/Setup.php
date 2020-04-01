@@ -4,12 +4,12 @@ namespace TNO\EssifLab;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Controllers\Activate;
-use TNO\EssifLab\Controllers\Admin;
-use TNO\EssifLab\Controllers\Deactivate;
-use TNO\EssifLab\Controllers\NotAdmin;
-use TNO\EssifLab\Extendables\CoreAbstract;
-use TNO\EssifLab\Traits\Hooks;
+use TNO\EssifLab\Application\Controllers\Activate;
+use TNO\EssifLab\Application\Controllers\Admin;
+use TNO\EssifLab\Application\Controllers\Deactivate;
+use TNO\EssifLab\Application\Controllers\NotAdmin;
+use TNO\EssifLab\Application\Workflows\Constructors\CoreAbstract;
+use TNO\EssifLab\Application\Workflows\Constructors\Hooks;
 
 class Setup extends CoreAbstract
 {

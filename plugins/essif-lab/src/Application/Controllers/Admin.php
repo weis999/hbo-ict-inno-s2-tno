@@ -1,11 +1,12 @@
 <?php
 
-namespace TNO\EssifLab\Controllers;
+namespace TNO\Essiflab\Application\Controllers;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Extendables\CoreAbstract;
-use TNO\EssifLab\Models\FieldManager;
+use TNO\EssifLab\Application\Workflows\Constructors\CoreAbstract;
+use TNO\EssifLab\Presentation\Views\FieldManager;
+use TNO\EssifLab\Application\Controllers\NotAdmin;
 
 class Admin extends CoreAbstract
 {

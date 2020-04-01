@@ -1,14 +1,14 @@
 <?php
 
-namespace TNO\EssifLab\Models;
+namespace TNO\EssifLab\Presentation\Views;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Contracts\FieldInterface;
-use TNO\EssifLab\Extendables\FieldManagerAbstract;
-use TNO\EssifLab\Models\FieldTypes\SelectBoxes;
-use TNO\EssifLab\Models\FieldTypes\TextArea;
-use TNO\EssifLab\Models\FieldTypes\TextField;
+use TNO\EssifLab\Presentation\Themeable\FieldInterface;
+use TNO\EssifLab\Presentation\Themeable\FieldManagerAbstract;
+use TNO\EssifLab\Presentation\Views\FieldTypes\SelectBoxes;
+use TNO\EssifLab\Presentation\Views\FieldTypes\TextArea;
+use TNO\EssifLab\Presentation\Views\FieldTypes\TextField;
 
 class FieldManager extends FieldManagerAbstract
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace TNO\EssifLab\Controllers;
+namespace TNO\Essiflab\Application\Controllers;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Extendables\CoreAbstract;
+use TNO\EssifLab\Application\Workflows\Constructors\CoreAbstract;
 
 class NotAdmin extends CoreAbstract
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace TNO\EssifLab\Extendables;
+namespace TNO\EssifLab\Presentation\Themeable;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Contracts\FieldManagerInterface;
+use TNO\EssifLab\Presentation\Themeable\FieldManagerInterface;
 
 abstract class FieldManagerAbstract implements FieldManagerInterface
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace TNO\EssifLab\Extendables;
+namespace TNO\EssifLab\Presentation\Themeable;
 
-use TNO\EssifLab\Contracts\FieldInterface;
+use TNO\EssifLab\Presentation\Themeable\FieldInterface;
 
 defined('ABSPATH') or die();
 
