@@ -1,10 +1,10 @@
 <?php
 
-namespace TNO\EssifLab\Contracts;
+namespace TNO\EssifLab\Interfaces;
 
 defined('ABSPATH') or die();
 
-interface CoreSettingsInterface
+interface CoreSettings
 {
     const FIELD_MESSAGE = 'message';
 }

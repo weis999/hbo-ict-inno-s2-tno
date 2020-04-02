@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) or die();
 require plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 // Import the class to initiate the plugin
-use TNO\EssifLab\Setup;
+use TNO\EssifLab\Plugin;
 
 // Make sure the WP Plugin API is loaded
 if (!function_exists('get_plugin_data')) {
@@ -21,7 +21,7 @@ if (!function_exists('get_plugin_data')) {
 }
 
 // Initiate the plugin by creating an instance
-new Setup(array_merge(
+new Plugin(array_merge(
     get_plugin_data(__FILE__, false, false),
     [
         'PluginPath' => plugin_dir_path(__FILE__),

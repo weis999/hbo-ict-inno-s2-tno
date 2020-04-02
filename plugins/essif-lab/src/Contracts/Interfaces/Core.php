@@ -1,10 +1,10 @@
 <?php
 
-namespace TNO\EssifLab\Contracts;
+namespace TNO\EssifLab\Interfaces;
 
 defined('ABSPATH') or die();
 
-interface CoreInterface
+interface Core
 {
     /**
      * Get all the stored options.

@@ -1,13 +1,13 @@
 <?php
 
-namespace TNO\EssifLab\Extendables;
+namespace TNO\EssifLab\Abstracts;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Contracts\CoreInterface;
-use TNO\EssifLab\Contracts\CoreSettingsInterface;
+use TNO\EssifLab\Interfaces\Core as ICore;
+use TNO\EssifLab\Interfaces\CoreSettings as ICoreSettings;
 
-abstract class CoreAbstract implements CoreInterface, CoreSettingsInterface
+abstract class Core implements ICore, ICoreSettings
 {
     /**
      * The full name of the plugin as shown in the plugins list.
