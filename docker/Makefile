@@ -4,8 +4,6 @@ start:
 down:
 	docker-compose down
 
-install: start healthcheck
-
 autoinstall: start
 	docker-compose -f docker-compose.yml run --rm wp-auto-config
 
