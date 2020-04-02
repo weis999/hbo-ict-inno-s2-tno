@@ -6,8 +6,7 @@ defined('ABSPATH') or die();
 
 use TNO\EssifLab\Abstracts\Controller;
 
-class NotAdmin extends Controller
-{
+class NotAdmin extends Controller {
 	public function getActions(): array {
 		return $this->actions;
 	}
