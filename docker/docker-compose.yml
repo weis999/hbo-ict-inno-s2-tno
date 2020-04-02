@@ -93,23 +93,6 @@ services:
       - WORDPRESS_ADMIN_PASSWORD=${WORDPRESS_ADMIN_PASSWORD:-wordpress}
       - WORDPRESS_ADMIN_EMAIL=${WORDPRESS_ADMIN_EMAIL:-"test@example.com"}
 
-  portainer:
-    image: portainer/portainer
-    container_name: portainer
-    restart: always
-    command: -H unix:///var/run/docker.sock
-    ports:
-      - "9000:9000"
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ${HOME}/Docker/opt/appdata/portainer/data:/data
-      - ${HOME}/Docker/downloads/bin:/data/recycle
-    environment:
-      - TZ=Europe/Amsterdam
-    networks:
-      frontend:
-
 networks:
   frontend:
   backend:
