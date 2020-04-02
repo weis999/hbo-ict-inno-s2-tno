@@ -4,7 +4,8 @@
     "license": "mit",
     "minimum-stability": "dev",
     "require": {
-        "php": ">=7.1"
+        "php": ">=7.1",
+        "laravel/lumen-installer": "dev-master"
     },
     "autoload": {
         "psr-4": {"TNO\\EssifLab\\": "src/"}
