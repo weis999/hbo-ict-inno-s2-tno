@@ -10,17 +10,17 @@ trait Hooks {
 	 *
 	 * @var      array $actions The actions registered with WordPress to fire when the plugin loads.
 	 */
-	private $actions = [];
+	protected $actions = [];
 
 	/**
 	 * The array of filters registered with WordPress.
 	 *
 	 * @var      array $filters The filters registered with WordPress to fire when the plugin loads.
 	 */
-	private $filters = [];
+	protected $filters = [];
 
 	/**
-	 * Add a new filter to the collection to be registered with WordPress.
+	 * Add a new action to the collection to be registered with WordPress.
 	 *
 	 * @param string $hook The name of the WordPress filter that is being registered.
 	 * @param object $component A reference to the instance of the object on which the filter is defined.
@@ -28,7 +28,7 @@ trait Hooks {
 	 * @param int $priority Optional. The priority at which the function should be fired. Default is 10.
 	 * @param int $accepted_args Optional. The number of arguments that should be passed to the $callback. Default is 1
 	 */
-	protected function add_action($hook, $component, $callback, $priority = 10, $accepted_args = 1) {
+	protected function addAction($hook, $component, $callback, $priority = 10, $accepted_args = 1) {
 		$this->actions = $this->add($this->actions, $hook, $component, $callback, $priority, $accepted_args);
 	}
 
@@ -41,7 +41,7 @@ trait Hooks {
 	 * @param int $priority Optional. The priority at which the function should be fired. Default is 10.
 	 * @param int $accepted_args Optional. The number of arguments that should be passed to the $callback. Default is 1
 	 */
-	protected function add_filter($hook, $component, $callback, $priority = 10, $accepted_args = 1) {
+	protected function addFilter($hook, $component, $callback, $priority = 10, $accepted_args = 1) {
 		$this->filters = $this->add($this->filters, $hook, $component, $callback, $priority, $accepted_args);
 	}
 

@@ -11,37 +11,37 @@ use TNO\EssifLab\Controllers\Deactivate;
 use TNO\EssifLab\Controllers\NotAdmin;
 
 class Main extends Core {
-	public function __construct(array $plugin_data = []) {
-		parent::__construct($plugin_data);
+	public function __construct(array $pluginData = []) {
+		parent::__construct($pluginData);
 		$this->initializeActivationAndDeactivationHook();
 		$this->initializeAdminComponent();
 		$this->initializeNotAdminComponent();
 	}
 
 	private function initializeActivationAndDeactivationHook() {
-		$file = $this->get_path().'index.php';
+		$file = $this->getPath().'index.php';
 
 		register_activation_hook($file, [$this, 'activate']);
 		register_deactivation_hook($file, [$this, 'deactivate']);
 	}
 
 	public function activate() {
-		new Activate($this->get_plugin_data());
+		new Activate($this->getPluginData());
 	}
 
 	public function deactivate() {
-		new Deactivate($this->get_plugin_data());
+		new Deactivate($this->getPluginData());
 	}
 
 	private function initializeAdminComponent() {
-		$component = new Admin($this->get_plugin_data());
+		$component = new Admin($this->getPluginData());
 		if (is_admin()) {
 			$this->addActionsAndFilters($component->getActions(), $component->getFilters());
 		}
 	}
 
 	private function initializeNotAdminComponent() {
-		$component = new NotAdmin($this->get_plugin_data());
+		$component = new NotAdmin($this->getPluginData());
 		if (! is_admin()) {
 			$this->addActionsAndFilters($component->getActions(), $component->getFilters());
 		}

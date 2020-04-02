@@ -47,20 +47,20 @@ abstract class Core implements ICore {
 	 *
 	 * @var array
 	 */
-	private $plugin_data = [];
+	private $pluginData = [];
 
 	/**
 	 * CoreAbstract constructor.
 	 *
-	 * @param array $plugin_data
+	 * @param array $pluginData
 	 */
-	public function __construct($plugin_data = []) {
-		$this->plugin_data = $plugin_data;
-		$this->name = $this->get_plugin_data_value('Name');
-		$this->version = $this->get_plugin_data_value('Version');
-		$this->domain = $this->get_plugin_data_value('TextDomain');
-		$this->path = $this->get_plugin_data_value('PluginPath');
-		$this->options = function_exists('get_option') ? get_option($this->get_domain()) : [];
+	public function __construct($pluginData = []) {
+		$this->pluginData = $pluginData;
+		$this->name = $this->getPluginDataValue('Name');
+		$this->version = $this->getPluginDataValue('Version');
+		$this->domain = $this->getPluginDataValue('TextDomain');
+		$this->path = $this->getPluginDataValue('PluginPath');
+		$this->options = function_exists('get_option') ? get_option($this->getDomain()) : [];
 	}
 
 	/**
@@ -68,7 +68,7 @@ abstract class Core implements ICore {
 	 *
 	 * @return string
 	 */
-	public function get_name(): string {
+	public function getName(): string {
 		return $this->name;
 	}
 
@@ -77,7 +77,7 @@ abstract class Core implements ICore {
 	 *
 	 * @return string
 	 */
-	public function get_version(): string {
+	public function getVersion(): string {
 		return $this->version;
 	}
 
@@ -86,7 +86,7 @@ abstract class Core implements ICore {
 	 *
 	 * @return string
 	 */
-	public function get_domain(): string {
+	public function getDomain(): string {
 		return $this->domain;
 	}
 
@@ -95,7 +95,7 @@ abstract class Core implements ICore {
 	 *
 	 * @return string
 	 */
-	public function get_path(): string {
+	public function getPath(): string {
 		return $this->path;
 	}
 
@@ -104,7 +104,7 @@ abstract class Core implements ICore {
 	 *
 	 * @return array
 	 */
-	public function get_options(): array {
+	public function getOptions(): array {
 		return $this->options;
 	}
 
@@ -114,7 +114,7 @@ abstract class Core implements ICore {
 	 * @param string $key
 	 * @return mixed|null
 	 */
-	public function get_option($key) {
+	public function getOption($key) {
 		return is_array($this->options) && array_key_exists($key, $this->options) ? $this->options[$key] : '';
 	}
 
@@ -124,7 +124,7 @@ abstract class Core implements ICore {
 	 * @param string $key
 	 * @return mixed
 	 */
-	public function has_option($key) {
+	public function hasOption($key) {
 		return is_array($this->options) && array_key_exists($key, $this->options);
 	}
 
@@ -135,10 +135,10 @@ abstract class Core implements ICore {
 	 * @param null|mixed $value
 	 * @return void
 	 */
-	public function update_option($key, $value = null) {
-		$newOptions = $this->get_options();
+	public function updateOption($key, $value = null) {
+		$newOptions = $this->getOptions();
 		$newOptions[$key] = $value;
-		update_option($this->get_domain(), $newOptions);
+		update_option($this->getDomain(), $newOptions);
 		$this->options = $newOptions;
 	}
 
@@ -148,9 +148,9 @@ abstract class Core implements ICore {
 	 * @param $options
 	 * @return void
 	 */
-	public function update_options($options) {
-		$updatedOptions = array_merge($this->get_options(), $options);
-		update_option($this->get_domain(), $updatedOptions);
+	public function updateOptions($options) {
+		$updatedOptions = array_merge($this->getOptions(), $options);
+		update_option($this->getDomain(), $updatedOptions);
 		$this->options = $updatedOptions;
 	}
 
@@ -159,8 +159,8 @@ abstract class Core implements ICore {
 	 *
 	 * @return array
 	 */
-	public function get_plugin_data(): array {
-		return $this->plugin_data;
+	public function getPluginData(): array {
+		return $this->pluginData;
 	}
 
 	/**
@@ -169,7 +169,7 @@ abstract class Core implements ICore {
 	 * @param string $key
 	 * @return mixed|null
 	 */
-	private function get_plugin_data_value($key) {
-		return is_array($this->plugin_data) && array_key_exists($key, $this->plugin_data) ? $this->plugin_data[$key] : null;
+	private function getPluginDataValue($key) {
+		return is_array($this->pluginData) && array_key_exists($key, $this->pluginData) ? $this->pluginData[$key] : null;
 	}
 }

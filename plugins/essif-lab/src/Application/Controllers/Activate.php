@@ -5,7 +5,11 @@ namespace TNO\EssifLab\Controllers;
 defined('ABSPATH') or die();
 
 use TNO\EssifLab\Abstracts\Core;
+use TNO\EssifLab\Interfaces\SimpleController;
 
-class Activate extends Core
+class Activate extends Core implements SimpleController
 {
+	public function execute(): void {
+		// TODO: Implement execute() method.
+	}
 }
