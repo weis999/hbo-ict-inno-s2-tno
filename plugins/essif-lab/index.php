@@ -25,6 +25,5 @@ new Main(array_merge(
     get_plugin_data(__FILE__, false, false),
     [
         'PluginPath' => plugin_dir_path(__FILE__),
-        'PluginParentPage' => 'settings',
     ]
 ));

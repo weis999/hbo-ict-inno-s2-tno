@@ -17,13 +17,6 @@ abstract class Core implements ICore, ICoreSettings
     private $name;
 
     /**
-     * The parent page of the plugin's option page.
-     *
-     * @var string
-     */
-    private $plugin_parent_page;
-
-    /**
      * The version number of this plugin.
      *
      * @var string
@@ -70,7 +63,6 @@ abstract class Core implements ICore, ICoreSettings
         $this->version = $this->get_plugin_data_value('Version');
         $this->domain = $this->get_plugin_data_value('TextDomain');
         $this->path = $this->get_plugin_data_value('PluginPath');
-        $this->plugin_parent_page = $this->get_plugin_data_value('PluginParentPage');
         $this->options = function_exists('get_option') ? get_option($this->get_domain()) : [];
     }
 
@@ -112,16 +104,6 @@ abstract class Core implements ICore, ICoreSettings
     public function get_path(): string
     {
         return $this->path;
-    }
-
-    /**
-     * The parent page of the plugin's option page.
-     *
-     * @return string
-     */
-    public function get_plugin_parent_page(): string
-    {
-        return $this->plugin_parent_page;
     }
 
     /**
