@@ -19,6 +19,7 @@ services:
     ports:
         - 80:80
     networks:
+      frontend:
       backend:
 
   mysql:
@@ -37,7 +38,6 @@ services:
     restart: always
     networks:
       backend:
-      frontend:
 
   phpmyadmin:
     depends_on:
