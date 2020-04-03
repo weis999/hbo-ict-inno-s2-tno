@@ -1,6 +1,6 @@
 <?php
 
-namespace TNO\EssifLab\Interfaces;
+namespace TNO\EssifLab\Contracts\Interfaces;
 
 defined('ABSPATH') or die();
 

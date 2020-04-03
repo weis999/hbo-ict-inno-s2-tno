@@ -4,11 +4,11 @@ namespace TNO\EssifLab\Application;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Abstracts\Core;
-use TNO\EssifLab\Controllers\Activate;
-use TNO\EssifLab\Controllers\Admin;
-use TNO\EssifLab\Controllers\Deactivate;
-use TNO\EssifLab\Controllers\NotAdmin;
+use TNO\EssifLab\Contracts\Abstracts\Core;
+use TNO\EssifLab\Application\Controllers\Activate;
+use TNO\EssifLab\Application\Controllers\Admin;
+use TNO\EssifLab\Application\Controllers\Deactivate;
+use TNO\EssifLab\Application\Controllers\NotAdmin;
 
 class Main extends Core {
 	public function __construct(array $pluginData = []) {

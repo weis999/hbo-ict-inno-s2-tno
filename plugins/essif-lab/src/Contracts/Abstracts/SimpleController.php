@@ -1,8 +1,8 @@
 <?php
 
-namespace TNO\EssifLab\Abstracts;
+namespace TNO\EssifLab\Contracts\Abstracts;
 
-use TNO\EssifLab\Interfaces\SimpleController as ISimpleController;
+use TNO\EssifLab\Contracts\Interfaces\SimpleController as ISimpleController;
 
 abstract class SimpleController extends Core implements ISimpleController {
 	public function __construct($pluginData = []) {

@@ -1,11 +1,11 @@
 <?php
 
-namespace TNO\EssifLab\Controllers;
+namespace TNO\EssifLab\Application\Controllers;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Abstracts\SimpleController;
-use TNO\EssifLab\Interfaces\RegistersPostTypes;
+use TNO\EssifLab\Contracts\Abstracts\SimpleController;
+use TNO\EssifLab\Contracts\Interfaces\RegistersPostTypes;
 
 class Activate extends SimpleController {
 	public function execute(): void {

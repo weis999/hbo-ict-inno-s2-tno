@@ -1,10 +1,10 @@
 <?php
 
-namespace TNO\EssifLab\Controllers;
+namespace TNO\EssifLab\Application\Controllers;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Abstracts\Controller;
+use TNO\EssifLab\Contracts\Abstracts\Controller;
 
 class NotAdmin extends Controller {
 	public function getActions(): array {

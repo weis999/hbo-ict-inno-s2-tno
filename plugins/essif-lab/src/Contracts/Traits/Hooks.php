@@ -1,6 +1,6 @@
 <?php
 
-namespace TNO\EssifLab\Traits;
+namespace TNO\EssifLab\Contracts\Traits;
 
 defined('ABSPATH') or die();
 

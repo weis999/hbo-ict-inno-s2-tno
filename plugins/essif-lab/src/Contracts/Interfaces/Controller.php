@@ -1,6 +1,6 @@
 <?php
 
-namespace TNO\EssifLab\Interfaces;
+namespace TNO\EssifLab\Contracts\Interfaces;
 
 interface Controller {
 	public function getActions(): array;

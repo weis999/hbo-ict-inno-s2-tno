@@ -1,10 +1,10 @@
 <?php
 
-namespace TNO\EssifLab\Abstracts;
+namespace TNO\EssifLab\Contracts\Abstracts;
 
 defined('ABSPATH') or die();
 
-use TNO\EssifLab\Interfaces\Core as ICore;
+use TNO\EssifLab\Contracts\Interfaces\Core as ICore;
 
 abstract class Core implements ICore {
 	/**
