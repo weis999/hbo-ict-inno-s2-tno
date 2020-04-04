@@ -16,7 +16,7 @@ abstract class View extends Core implements IView {
 		print $this->render();
 	}
 
-	public function getArg($key) {
-		return is_array($this->args) && array_key_exists($key, $this->args) ? $this->args[$key] : null;
+	public function getArg($key, $fallback = null) {
+		return is_array($this->args) && array_key_exists($key, $this->args) ? $this->args[$key] : $fallback;
 	}
 }

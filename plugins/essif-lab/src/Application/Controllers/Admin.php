@@ -7,7 +7,8 @@ defined('ABSPATH') or die();
 use TNO\EssifLab\Application\Workflows\ManageHooks;
 use TNO\EssifLab\Contracts\Abstracts\Controller;
 use TNO\EssifLab\Contracts\Interfaces\RegistersPostTypes;
-use TNO\EssifLab\Presentation\Views\Hooks;
+use TNO\EssifLab\Presentation\Views\FormForHooks;
+use TNO\EssifLab\Presentation\Views\ListOfHooks;
 
 class Admin extends Controller implements RegistersPostTypes {
 	private $postTypes = [
@@ -55,8 +56,10 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	public function addMetaBoxes(): void {
-		$hooks = new Hooks($this->getPluginData(), json_decode(get_post()->post_content, true));
-		add_meta_box('validation-policy-hooks', 'Hooks', [$hooks, 'display'], 'validation-policy');
+		$hooksForm = new FormForHooks($this->getPluginData(), json_decode(get_post()->post_content, true));
+		$hooksList = new ListOfHooks($this->getPluginData(), json_decode(get_post()->post_content, true));
+		add_meta_box('validation-policy-form-for-hooks', 'Form for Hooks', [$hooksForm, 'display'], 'validation-policy', 'normal');
+		add_meta_box('validation-policy-list-of-hooks', 'List of Hooks', [$hooksList, 'display'], 'validation-policy', 'normal');
 	}
 
 	private function getPluralFromSingular($str): string {

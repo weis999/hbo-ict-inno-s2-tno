@@ -23,11 +23,11 @@ class ManageHooks extends Core {
 		}
 	}
 
-	public function add() {
+	public function add($attrs) {
 		// TODO: add a hook to a validation policy
 	}
 
-	public function edit($hook) {
+	public function edit($attrs) {
 		// TODO: edit a hook of a validation policy
 	}
 
