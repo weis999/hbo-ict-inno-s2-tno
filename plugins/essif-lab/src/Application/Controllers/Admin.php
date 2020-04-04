@@ -21,8 +21,7 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	public function registerAdminMenuItem(): void {
-		$component = [new Dashboard(), 'render'];
-		add_menu_page($this->getName(), $this->getName(), 'manage_options', $this->getDomain(), $component, 'none');
+		add_menu_page($this->getName(), $this->getName(), 'manage_options', $this->getDomain(), null, 'dashicons-lock');
 	}
 
 	public function registerPostTypes(): void {
