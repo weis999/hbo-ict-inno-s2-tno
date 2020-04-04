@@ -17,11 +17,19 @@ class Admin extends Controller implements RegistersPostTypes {
 		'schema',
 	];
 
+	private $workFlows = [
+		'hooks',
+		'credentials',
+		'inputMediums',
+		'issuers',
+		'schemas'
+	];
+
 	public function getActions(): array {
 		$this->addAction('init', $this, 'registerPostTypes');
 		$this->addAction('admin_menu', $this, 'registerAdminMenuItem');
 		$this->addAction('add_meta_boxes', $this, 'addMetaBoxes');
-		$this->addAction('save_post_validation-policy', $this, 'registerHooksWorkflows');
+		$this->addAction('save_post_'.$this->postTypes[0], $this, 'registerHooksWorkflows', 10, 2);
 
 		return $this->actions;
 	}
@@ -56,11 +64,21 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	public function addMetaBoxes(): void {
-		$hooksForm = new FormForHooks($this->getPluginData(), json_decode(get_post()->post_content, true));
-		$hooksList = new ListOfHooks($this->getPluginData(), json_decode(get_post()->post_content, true));
-		add_meta_box('validation-policy-form-for-hooks', 'Form for Hooks', [$hooksForm, 'display'], 'validation-policy', 'normal');
-		add_meta_box('validation-policy-list-of-hooks', 'List of Hooks', [$hooksList, 'display'], 'validation-policy', 'normal');
+		$data = $this->getPluginData();
+		$content = json_decode(get_post()->post_content, true);
+		$content = empty($content) || !is_array($content) ? [] : $content;
+		$args = array_merge($content, [
+			'name' => $this->getActionNameForWorkflow(0),
+		]);
+		$this->addMetaBox($this->postTypes[0], 'Form for Hooks', new FormForHooks($data, $args));
+		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
 	}
+
+	private function addMetaBox($screen, $title, $component): void {
+		$name = strtolower(str_replace(' ', '-', $title));
+		add_meta_box("$screen-$name", $title, [$component, 'display'], $screen, 'normal');
+	}
+
 
 	private function getPluralFromSingular($str): string {
 		switch (substr($str, -1)) {
@@ -82,11 +100,15 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	public function registerHooksWorkflows($post_id, $post): void {
-		$key = $this->getDomain().':hooks';
+		$key = $this->getActionNameForWorkflow(0);
 		if (is_array($_POST) && array_key_exists($key, $_POST)) {
-			$request = json_decode($_POST[$key], true);
+			$request = $_POST[$key];
 			$workflow = new ManageHooks($this->getPluginData(), [$post_id, $post]);
 			$workflow->execute($request);
 		}
+	}
+
+	private function getActionNameForWorkflow($workflow) {
+		return $this->getDomain().':'.$this->workFlows[$workflow];
 	}
 }
