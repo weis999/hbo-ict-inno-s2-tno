@@ -12,14 +12,11 @@ class FormForHooks extends View {
 
 	private $targets = [];
 
-	private $name;
-
 	public function __construct($pluginData, $args) {
 		parent::__construct($pluginData, $args);
 
 		$this->contexts = $this->getArg('contexts', $this->contexts);
 		$this->targets = $this->getArg('targets', $this->targets);
-		$this->name = $this->getDomain().':'.substr(strrchr(get_class($this), '\\'), 1);
 	}
 
 	public function render(): string {

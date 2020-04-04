@@ -11,14 +11,11 @@ class ListOfHooks extends View {
 
 	private $items = [];
 
-	private $name;
-
 	public function __construct($pluginData, $args) {
 		parent::__construct($pluginData, $args);
 
 		$this->headings = $this->getArg('headings', $this->headings);
 		$this->items = $this->getArg('items', $this->items);
-		$this->name = $this->getDomain().':'.substr(strrchr(get_class($this), '\\'), 1);
 	}
 
 	public function render(): string {
