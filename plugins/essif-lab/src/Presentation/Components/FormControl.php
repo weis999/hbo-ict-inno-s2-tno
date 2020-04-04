@@ -92,7 +92,7 @@ class FormControl extends Component {
 	protected function renderFieldWithChildren($tag, $attrs, $children) {
 		if (is_array($children)) {
 			$childrenArray = $children;
-			$children = '<option>'.__('Please select...', $this->plugin->getDomain()).'</option>';
+			$children = '<option value="">'.__('Please select...', $this->plugin->getDomain()).'</option>';
 			foreach ($childrenArray as $value => $innerChildren) {
 				$attrs = self::generateElementAttrs(['value' => $value]);
 				$children .= "<option$attrs>$innerChildren</option>";
