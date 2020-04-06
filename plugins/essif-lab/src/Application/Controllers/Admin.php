@@ -4,6 +4,7 @@ namespace TNO\EssifLab\Application\Controllers;
 
 defined('ABSPATH') or die();
 
+use TNO\EssifLab\Application\Workflows\ManageCredentials;
 use TNO\EssifLab\Application\Workflows\ManageHooks;
 use TNO\EssifLab\Contracts\Abstracts\Controller;
 use TNO\EssifLab\Contracts\Interfaces\RegistersPostTypes;
@@ -17,19 +18,11 @@ class Admin extends Controller implements RegistersPostTypes {
 		'schema',
 	];
 
-	private $workFlows = [
-		'hooks',
-		'credentials',
-		'inputMediums',
-		'issuers',
-		'schemas'
-	];
-
 	public function getActions(): array {
 		$this->addAction('init', $this, 'registerPostTypes');
 		$this->addAction('admin_menu', $this, 'registerAdminMenuItem');
 		$this->addAction('add_meta_boxes', $this, 'addMetaBoxes');
-		$this->addAction('save_post_'.$this->postTypes[0], $this, 'registerHooksWorkflows', 10, 2);
+		$this->addAction('save_post_'.$this->postTypes[0], $this, 'registerValidationPolicyWorkflows', 10, 2);
 
 		return $this->actions;
 	}
@@ -65,12 +58,32 @@ class Admin extends Controller implements RegistersPostTypes {
 
 	public function addMetaBoxes(): void {
 		$data = $this->getPluginData();
-		$content = json_decode(get_post()->post_content, true);
-		$content = empty($content) || !is_array($content) ? [] : $content;
-		$args = array_merge($content, [
-			'name' => $this->getActionNameForWorkflow(0),
+
+		$this->addHooksMetaBox($data);
+	}
+
+	private function getPostContentAsJson($post = null) {
+		$post_content = 'post_content';
+		$post = empty($post) ? get_post() : $post;
+		$content = is_array($post) && array_key_exists($post_content, $post) ? $post[$post_content] : null;
+		$content = empty($content) && is_object($post) && property_exists($post, $post_content) ? $post->{$post_content} : $content;
+		$content = json_decode($content, true);
+
+		return empty($content) || ! is_array($content) ? [] : $content;
+	}
+
+	private function addHooksMetaBox($data): void {
+		$args = array_merge($this->getPostContentAsJson(), [
+			'name' => ManageHooks::getActionName(),
 		]);
 		$this->addMetaBox($this->postTypes[0], 'Form for Hooks', new FormForHooks($data, $args));
+		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
+	}
+
+	private function addCredentialMetaBox($data): void {
+		$args = array_merge($this->getPostContentAsJson(), [
+			'name' => ManageCredentials::getActionName(),
+		]);
 		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
 	}
 
@@ -78,7 +91,6 @@ class Admin extends Controller implements RegistersPostTypes {
 		$name = strtolower(str_replace(' ', '-', $title));
 		add_meta_box("$screen-$name", $title, [$component, 'display'], $screen, 'normal');
 	}
-
 
 	private function getPluralFromSingular($str): string {
 		switch (substr($str, -1)) {
@@ -99,16 +111,35 @@ class Admin extends Controller implements RegistersPostTypes {
 		return $str;
 	}
 
-	public function registerHooksWorkflows($post_id, $post): void {
-		$key = $this->getActionNameForWorkflow(0);
-		if (is_array($_POST) && array_key_exists($key, $_POST)) {
-			$request = $_POST[$key];
-			$workflow = new ManageHooks($this->getPluginData(), [$post_id, $post]);
-			$workflow->execute($request);
+	public function registerValidationPolicyWorkflows($post_id, $post): void {
+		$this->defaultSavePostChecks($post_id);
+		$this->removeAllBeforeActionExecution('save_post', function () use ($post) {
+			ManageHooks::register($this, $post);
+			ManageCredentials::register($this, $post);
+		});
+	}
+
+	private function defaultSavePostChecks($post_id) {
+		$onAutoSave = defined('DOING_AUTOSAVE') && DOING_AUTOSAVE;
+		$onNoPermissions = ! current_user_can('edit_post', $post_id);
+
+		if ($onAutoSave || $onNoPermissions) {
+			return null;
 		}
 	}
 
-	private function getActionNameForWorkflow($workflow) {
-		return $this->getDomain().':'.$this->workFlows[$workflow];
+	private function removeAllBeforeActionExecution($action, $callback) {
+		// Backup all filters and remove all actions temporary
+		global $wp_filter, $merged_filters;
+		$backup_wp_filter = $wp_filter;
+		$backup_merged_filters = $merged_filters;
+		remove_all_actions($action);
+
+		// Execute the callback for the action once
+		$callback();
+
+		// Restore filters
+		$wp_filter = $backup_wp_filter;
+		$merged_filters = $backup_merged_filters;
 	}
 }

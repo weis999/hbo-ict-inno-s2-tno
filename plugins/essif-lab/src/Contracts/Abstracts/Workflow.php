@@ -3,19 +3,25 @@
 namespace TNO\EssifLab\Contracts\Abstracts;
 
 use TNO\EssifLab\Contracts\Interfaces\Workflow as IWorkflow;
+use TNO\EssifLab\Contracts\Interfaces\Core as ICore;
 
 abstract class Workflow extends Core implements IWorkflow {
 	protected $actionKey = 'action';
 
-	protected $post_id;
-
 	protected $post;
 
-	public function __construct($pluginData, $requestData) {
+	public function __construct($pluginData, $post) {
 		parent::__construct($pluginData);
-		[$post_id, $post] = $requestData;
-		$this->post_id = $post_id;
 		$this->post = $post;
+	}
+
+	public static function register(ICore $pluginData, $post): void {
+		$key = static::getFullActionName($pluginData->getDomain(), static::getActionName());
+		if (is_array($_POST) && array_key_exists($key, $_POST)) {
+			$request = $_POST[$key];
+			$workflow = new static($pluginData->getPluginData(), $post);
+			$workflow->execute($request);
+		}
 	}
 
 	public function execute(array $request): void {
@@ -31,10 +37,15 @@ abstract class Workflow extends Core implements IWorkflow {
 		if (array_key_exists($this->actionKey, $backup)) {
 			unset($backup[$this->actionKey]);
 		}
+
 		return $backup;
 	}
 
 	private function hasActionKey($array) {
 		return is_array($array) && array_key_exists($this->actionKey, $array);
+	}
+
+	protected static function getFullActionName($prefix, $subject) {
+		return $prefix.':'.$subject;
 	}
 }
