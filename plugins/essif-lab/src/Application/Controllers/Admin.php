@@ -77,8 +77,8 @@ class Admin extends Controller implements RegistersPostTypes {
 		$args = array_merge($this->getPostContentAsJson(), [
 			'name' => ManageHooks::getFullActionName($this->getDomain(), ManageHooks::getActionName()),
 		]);
-		$this->addMetaBox($this->postTypes[0], 'Form for Hooks', new FormForHooks($data, $args));
-		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
+		$this->addMetaBox($this->postTypes[0], 'Add new hook', new FormForHooks($data, $args));
+		$this->addMetaBox($this->postTypes[0], 'Active hooks', new ListOfHooks($data, $args));
 	}
 
 	private function addCredentialMetaBox($data): void {
