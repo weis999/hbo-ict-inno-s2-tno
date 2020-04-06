@@ -9,6 +9,7 @@ use TNO\EssifLab\Application\Workflows\ManageHooks;
 use TNO\EssifLab\Contracts\Abstracts\Controller;
 use TNO\EssifLab\Contracts\Interfaces\RegistersPostTypes;
 use TNO\EssifLab\Presentation\Views\FormForHooks;
+use TNO\EssifLab\Presentation\Views\ListOfCredentials;
 use TNO\EssifLab\Presentation\Views\ListOfHooks;
 
 class Admin extends Controller implements RegistersPostTypes {
@@ -61,6 +62,7 @@ class Admin extends Controller implements RegistersPostTypes {
 		$data = $this->getPluginData();
 
 		$this->addHooksMetaBox($data);
+		$this->addCredentialMetaBox($data);
 	}
 
 	private function getPostContentAsJson($post = null) {
@@ -85,7 +87,7 @@ class Admin extends Controller implements RegistersPostTypes {
 		$args = array_merge($this->getPostContentAsJson(), [
 			'name' => ManageCredentials::getFullActionName($this->getDomain(), ManageCredentials::getActionName()),
 		]);
-		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
+		$this->addMetaBox($this->postTypes[0], 'Related credentials', new ListOfCredentials($data, $args));
 	}
 
 	private function addMetaBox($screen, $title, $component): void {
