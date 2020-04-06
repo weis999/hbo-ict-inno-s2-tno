@@ -14,6 +14,7 @@ use TNO\EssifLab\Presentation\Views\ListOfHooks;
 class Admin extends Controller implements RegistersPostTypes {
 	private $postTypes = [
 		'validation-policy',
+		'credential',
 		'issuer',
 		'schema',
 	];
