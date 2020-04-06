@@ -45,7 +45,7 @@ abstract class Workflow extends Core implements IWorkflow {
 		return is_array($array) && array_key_exists($this->actionKey, $array);
 	}
 
-	protected static function getFullActionName($prefix, $subject) {
-		return $prefix.':'.$subject;
+	public static function getFullActionName($prefix, $subject) {
+		return $prefix.'_'.$subject;
 	}
 }

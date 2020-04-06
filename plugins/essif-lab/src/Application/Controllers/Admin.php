@@ -74,7 +74,7 @@ class Admin extends Controller implements RegistersPostTypes {
 
 	private function addHooksMetaBox($data): void {
 		$args = array_merge($this->getPostContentAsJson(), [
-			'name' => ManageHooks::getActionName(),
+			'name' => ManageHooks::getFullActionName($this->getDomain(), ManageHooks::getActionName()),
 		]);
 		$this->addMetaBox($this->postTypes[0], 'Form for Hooks', new FormForHooks($data, $args));
 		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
@@ -82,7 +82,7 @@ class Admin extends Controller implements RegistersPostTypes {
 
 	private function addCredentialMetaBox($data): void {
 		$args = array_merge($this->getPostContentAsJson(), [
-			'name' => ManageCredentials::getActionName(),
+			'name' => ManageCredentials::getFullActionName($this->getDomain(), ManageCredentials::getActionName()),
 		]);
 		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
 	}

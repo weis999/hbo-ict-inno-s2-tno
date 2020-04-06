@@ -11,8 +11,6 @@ class ManageHooks extends Workflow {
 
 	public function add($attrs) {
 		// TODO: add a hook to a validation policy
-		var_dump('adding a hook', $attrs);
-		die();
 	}
 
 	public function edit($request) {
