@@ -15,7 +15,7 @@ class ListOfHooks extends View {
 		parent::__construct($pluginData, $args);
 
 		$this->headings = $this->getArg('headings', $this->headings);
-		$this->hooks = $this->getArg('items', $this->hooks);
+		$this->hooks = $this->getArg('hooks', $this->hooks);
 	}
 
 	public function render(): string {
