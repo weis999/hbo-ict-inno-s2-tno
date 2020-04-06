@@ -9,13 +9,13 @@ use TNO\EssifLab\Presentation\Components\PostList;
 class ListOfHooks extends View {
 	private $headings = ['context', 'target'];
 
-	private $items = [];
+	private $hooks = [];
 
 	public function __construct($pluginData, $args) {
 		parent::__construct($pluginData, $args);
 
 		$this->headings = $this->getArg('headings', $this->headings);
-		$this->items = $this->getArg('items', $this->items);
+		$this->hooks = $this->getArg('items', $this->hooks);
 	}
 
 	public function render(): string {
@@ -29,7 +29,7 @@ class ListOfHooks extends View {
 
 		return new PostList($this, [
 			'headings' => $this->headings,
-			'items' => $this->items,
+			'items' => $this->hooks,
 			'itemActions' => [$delete],
 		]);
 	}
