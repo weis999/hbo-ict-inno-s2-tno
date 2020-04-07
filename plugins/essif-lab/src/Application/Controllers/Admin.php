@@ -111,13 +111,18 @@ class Admin extends Controller implements RegistersPostTypes {
 		return $str;
 	}
 
-	public function registerValidationPolicyWorkflows($post_id, $post): void {
-		$this->defaultSavePostChecks($post_id);
-		$this->removeAllBeforeActionExecution('save_post', function () use ($post) {
-			ManageHooks::register($this, $post);
-			ManageCredentials::register($this, $post);
-		});
-	}
+	public function registerValidationPolicyWorkflows($post_id, $post): void
+    {
+        $this->defaultSavePostChecks($post_id);
+//        $this->removeAllBeforeActionExecution('save_post', function () use ($post) {
+//            ManageHooks::register($this, $post);
+//            ManageCredentials::register($this, $post);
+//        });
+        $this->removeAllBeforeActionExecution('save_post_validation-policy', function () use ($post) {
+            ManageHooks::register($this, $post);
+            ManageCredentials::register($this, $post);
+        });
+    }
 
 	private function defaultSavePostChecks($post_id) {
 		$onAutoSave = defined('DOING_AUTOSAVE') && DOING_AUTOSAVE;

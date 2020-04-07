@@ -17,6 +17,9 @@ class FormForHooks extends View {
 
 		$this->contexts = $this->getArg('contexts', $this->contexts);
 		$this->targets = $this->getArg('targets', $this->targets);
+
+//        $this->contexts = $this->getArg('contexts', ["context" => "test_context"]);
+//        $this->targets = $this->getArg('targets', ["target" => "test_target"]);
 	}
 
 	public function render(): string {
