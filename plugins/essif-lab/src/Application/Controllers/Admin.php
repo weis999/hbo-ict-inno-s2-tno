@@ -9,11 +9,13 @@ use TNO\EssifLab\Application\Workflows\ManageHooks;
 use TNO\EssifLab\Contracts\Abstracts\Controller;
 use TNO\EssifLab\Contracts\Interfaces\RegistersPostTypes;
 use TNO\EssifLab\Presentation\Views\FormForHooks;
+use TNO\EssifLab\Presentation\Views\ListOfCredentials;
 use TNO\EssifLab\Presentation\Views\ListOfHooks;
 
 class Admin extends Controller implements RegistersPostTypes {
 	private $postTypes = [
 		'validation-policy',
+		'credential',
 		'issuer',
 		'schema',
 	];
@@ -60,9 +62,10 @@ class Admin extends Controller implements RegistersPostTypes {
 		$data = $this->getPluginData();
 
 		$this->addHooksMetaBox($data);
+		$this->addCredentialMetaBox($data);
 	}
 
-	private function getPostContentAsJson($post = null) {
+	private function getJsonPostContentAsArray($post = null): array {
 		$post_content = 'post_content';
 		$post = empty($post) ? get_post() : $post;
 		$content = is_array($post) && array_key_exists($post_content, $post) ? $post[$post_content] : null;
@@ -73,18 +76,18 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	private function addHooksMetaBox($data): void {
-		$args = array_merge($this->getPostContentAsJson(), [
+		$args = array_merge($this->getJsonPostContentAsArray(), [
 			'name' => ManageHooks::getFullActionName($this->getDomain(), ManageHooks::getActionName()),
 		]);
-		$this->addMetaBox($this->postTypes[0], 'Form for Hooks', new FormForHooks($data, $args));
-		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
+		$this->addMetaBox($this->postTypes[0], 'Add new hook', new FormForHooks($data, $args));
+		$this->addMetaBox($this->postTypes[0], 'Active hooks', new ListOfHooks($data, $args));
 	}
 
 	private function addCredentialMetaBox($data): void {
-		$args = array_merge($this->getPostContentAsJson(), [
+		$args = array_merge($this->getJsonPostContentAsArray(), [
 			'name' => ManageCredentials::getFullActionName($this->getDomain(), ManageCredentials::getActionName()),
 		]);
-		$this->addMetaBox($this->postTypes[0], 'List of Hooks', new ListOfHooks($data, $args));
+		$this->addMetaBox($this->postTypes[0], 'Related credentials', new ListOfCredentials($data, $args));
 	}
 
 	private function addMetaBox($screen, $title, $component): void {
@@ -111,18 +114,13 @@ class Admin extends Controller implements RegistersPostTypes {
 		return $str;
 	}
 
-	public function registerValidationPolicyWorkflows($post_id, $post): void
-    {
-        $this->defaultSavePostChecks($post_id);
-//        $this->removeAllBeforeActionExecution('save_post', function () use ($post) {
-//            ManageHooks::register($this, $post);
-//            ManageCredentials::register($this, $post);
-//        });
-        $this->removeAllBeforeActionExecution('save_post_validation-policy', function () use ($post) {
-            ManageHooks::register($this, $post);
-            ManageCredentials::register($this, $post);
-        });
-    }
+	public function registerValidationPolicyWorkflows($post_id, $post): void {
+		$this->defaultSavePostChecks($post_id);
+		$this->removeAllBeforeActionExecution('save_post_'.$this->postTypes[0], function () use ($post) {
+			ManageHooks::register($this, $post);
+			ManageCredentials::register($this, $post);
+		});
+	}
 
 	private function defaultSavePostChecks($post_id) {
 		$onAutoSave = defined('DOING_AUTOSAVE') && DOING_AUTOSAVE;
