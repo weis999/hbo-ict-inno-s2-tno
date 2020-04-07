@@ -87,7 +87,7 @@ class Admin extends Controller implements RegistersPostTypes {
 		$args = array_merge($this->getJsonPostContentAsArray(), [
 			'name' => ManageCredentials::getFullActionName($this->getDomain(), ManageCredentials::getActionName()),
 		]);
-		$this->addMetaBox($this->postTypes[0], 'Related credentials', new ListOfCredentials($data, $args));
+//		$this->addMetaBox($this->postTypes[0], 'Related credentials', new ListOfCredentials($data, $args));
 	}
 
 	private function addMetaBox($screen, $title, $component): void {

@@ -11,12 +11,24 @@ class ManageHooks extends Workflow {
 	}
 
 	public function add($attrs) {
-		// TODO: add a hook to a validation policy
-        var_dump($this->post->post_content);
-//        $this->post->post_content->items = $this->post->post_content->items + json_encode($attrs);
+        $attrs = array("context" => "test2", "target" => "test2");
+//        $attrs = array("context" => "test3", "target" => "test3");
+        if(!empty($this->getJsonPostContentAsArray()["hooks"])) {
+            $equal = false;
+            foreach ($this->getJsonPostContentAsArray()["hooks"] as $post_content_hooks_array) {
+                if ($post_content_hooks_array["context"] != $attrs["context"] && $post_content_hooks_array["target"] != $attrs["target"]) {
+                    //hook is not linked to this validation policy yet
+                } else {
+                    $equal = true;
+                    //hook is already linked to this validation policy
+                }
+            }
+            if(!$equal) $this->post->post_content = json_encode(array("hooks" => array_merge($this->getJsonPostContentAsArray()["hooks"], array($attrs))));
+        }
+        else{
+            $this->post->post_content = json_encode(array("hooks" => array($attrs)));
+        }
         wp_update_post($this->post, true);
-        var_dump($attrs, $this->post);
-        die();
 	}
 
 	public function edit($request) {
@@ -27,7 +39,7 @@ class ManageHooks extends Workflow {
 		// TODO: delete a hook of a validation policy
 	}
 
-    private function getPostContentAsJson($post = null) {
+    private function getJsonPostContentAsArray($post = null): array {
         $post_content = 'post_content';
         $post = empty($post) ? get_post() : $post;
         $content = is_array($post) && array_key_exists($post_content, $post) ? $post[$post_content] : null;
