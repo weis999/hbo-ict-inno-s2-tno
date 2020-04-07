@@ -65,7 +65,7 @@ class Admin extends Controller implements RegistersPostTypes {
 		$this->addCredentialMetaBox($data);
 	}
 
-	private function getPostContentAsJson($post = null) {
+	private function getJsonPostContentAsArray($post = null): array {
 		$post_content = 'post_content';
 		$post = empty($post) ? get_post() : $post;
 		$content = is_array($post) && array_key_exists($post_content, $post) ? $post[$post_content] : null;
@@ -76,7 +76,7 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	private function addHooksMetaBox($data): void {
-		$args = array_merge($this->getPostContentAsJson(), [
+		$args = array_merge($this->getJsonPostContentAsArray(), [
 			'name' => ManageHooks::getFullActionName($this->getDomain(), ManageHooks::getActionName()),
 		]);
 		$this->addMetaBox($this->postTypes[0], 'Add new hook', new FormForHooks($data, $args));
@@ -84,7 +84,7 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	private function addCredentialMetaBox($data): void {
-		$args = array_merge($this->getPostContentAsJson(), [
+		$args = array_merge($this->getJsonPostContentAsArray(), [
 			'name' => ManageCredentials::getFullActionName($this->getDomain(), ManageCredentials::getActionName()),
 		]);
 		$this->addMetaBox($this->postTypes[0], 'Related credentials', new ListOfCredentials($data, $args));
