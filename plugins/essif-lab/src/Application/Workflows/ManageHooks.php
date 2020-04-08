@@ -6,11 +6,12 @@ use mysql_xdevapi\Exception;
 use TNO\EssifLab\Contracts\Abstracts\Workflow;
 
 class ManageHooks extends Workflow {
-	public static function getActionName(): string {
-		return 'hooks';
+	public static function options(): array {
+		// TODO: load all selectable options to be displayed in the select lists.
+		return ['context' => ['hello', 'world'], 'target' => ['foo', 'bar']];
 	}
 
-	public function add($attrs) {
+	public function add($request) {
 //        $attrs = array("context" => "test2", "target" => "test2");
 //        $attrs = array("context" => "test3", "target" => "test3");
         $attrs = array("context" => "test4", "target" => "test4");

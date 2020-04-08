@@ -3,9 +3,9 @@
 namespace TNO\EssifLab\Contracts\Interfaces;
 
 interface Workflow {
-	public static function register(Core $pluginData, $post): void;
+	public static function register(Core $core, $post, $key): void;
 
-	public static function getActionName(): string;
+	public static function options(): array;
 
 	public function execute(array $request): void;
 }

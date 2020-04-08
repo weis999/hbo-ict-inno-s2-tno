@@ -5,11 +5,12 @@ namespace TNO\EssifLab\Application\Workflows;
 use TNO\EssifLab\Contracts\Abstracts\Workflow;
 
 class ManageCredentials extends Workflow {
-	public static function getActionName(): string {
-		return 'credentials';
+	public static function options(): array {
+		// TODO: load all selectable options to be displayed in the select lists.
+		return [];
 	}
 
-	public function add($attrs) {
+	public function add($request) {
 		// TODO: add a hook to a validation policy
 		var_dump('adding a credential', $attrs);
         if(!empty($this->getJsonPostContentAsArray()["credentials"])) {

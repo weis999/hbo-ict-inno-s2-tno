@@ -8,9 +8,25 @@ use TNO\EssifLab\Contracts\Interfaces\Core;
 class FormControl extends Component {
 	private $name = '';
 
-	private $fields = [];
+	private $value = '';
 
-	private $typedTags = ['select', 'textarea', 'button'];
+	private $href = '';
+
+	private $type = '';
+
+	private $tag = 'input';
+
+	private $class = '';
+
+	private $placeholder = '';
+
+	private $disabled = false;
+
+	private $options = [];
+
+	private $label = '';
+
+	private $children = '';
 
 	public function __construct(Core $plugin, $args = []) {
 		parent::__construct($plugin);
@@ -23,82 +39,79 @@ class FormControl extends Component {
 	}
 
 	public function render(): string {
-		return $this->renderFields();
+		return join('', $this->getFormControl());
 	}
 
-	public function getRenderedFields($separated = false): array {
-		$output = [];
-		if (is_array($this->fields) && count($this->fields)) {
-			foreach ($this->fields as $field) {
-				$output[] = $this->renderField($field, $separated);
+	public function getFormControl(): array {
+		return [
+			'label' => $this->renderLabel(),
+			'input' => $this->renderInput(),
+		];
+	}
+
+	protected function renderLabel() {
+		$attrs = self::generateElementAttrs(['for' => $this->name]);
+
+		return empty($this->label) ? '' : "<label$attrs>$this->label</label>";
+	}
+
+	protected function renderInput() {
+		$renderedChildren = $this->renderInputChildren();
+		$renderedAttributes = $this->renderInputAttributes();
+
+		return $this->renderInputTag($renderedChildren, $renderedAttributes);
+	}
+
+	protected function renderInputChildren(): string {
+		switch ($this->tag) {
+			case 'input':
+				return '';
+
+			case 'select':
+				return $this->renderSelectChildren();
+
+			default:
+				return $this->children;
+		}
+	}
+
+	protected function renderSelectChildren(): string {
+		$output = '';
+		if (is_array($this->options)) {
+			$output = ! empty($this->placeholder) ? '<option value="">'.$this->placeholder.'...</option>' : '';
+			foreach ($this->options as $key => $value) {
+				$attrs = self::generateElementAttrs(['value' => $key]);
+				$output .= "<option$attrs>$value</option>";
 			}
 		}
+
+		$this->unsetValue();
 
 		return $output;
 	}
 
-	protected function renderFields(): string {
-		return join('', $this->getRenderedFields());
+	protected function renderInputTag($children, $attributes) {
+		return '<'.$this->tag.$attributes.(empty($children) ? '/>' : '>'.$children.'</'.$this->tag.'>');
 	}
 
-	protected function getFieldAttributesArray($field, $keys) {
-		$attrs = [];
-		if (is_array($keys) && is_array($field)) {
-			foreach ($keys as $key) {
-				$attrs[] = $this->getFieldAttribute($field, $key);
-			}
-		}
-
-		return $attrs;
-	}
-
-	protected function getFieldAttribute($field, $key) {
-		return is_array($field) && array_key_exists($key, $field) ? $field[$key] : null;
-	}
-
-	protected function renderField($field, $separated = false) {
-		[$inputName, $type, $label, $value, $children, $class] = $this->getFieldAttributesArray($field, [
-			'name',
-			'type',
+	protected function renderInputAttributes() {
+		$excluded = [
+			'tag',
+			'options',
 			'label',
-			'value',
-			'children',
-			'class',
-		]);
+			'placeholder',
+			'plugin',
+			'children'
+		];
 
-		$isTypedTag = array_search($type, $this->typedTags) !== false;
-		$inputName = $this->name."[$inputName]";
-		$tag = $isTypedTag ? $type : 'input';
-		$type = $isTypedTag ? null : $type;
-		$attrs = self::generateElementAttrs([
-			'name' => $inputName,
-			'type' => $type,
-			'class' => $class,
-			'value' => $value,
-		]);
+		$attributes = array_filter(get_object_vars($this), function ($key) use ($excluded) {
+			return array_search($key, $excluded) === false;
+		}, ARRAY_FILTER_USE_KEY);
 
-		$label = $this->renderLabel($inputName, $label);
-		$input = $isTypedTag ? $this->renderFieldWithChildren($tag, $attrs, $children) : "<$tag$attrs/>";
-
-		return $separated ? [$label, $input] : $label.$input;
+		return self::generateElementAttrs($attributes);
 	}
 
-	protected function renderLabel($for, $children) {
-		$attrs = self::generateElementAttrs(['for' => $for]);
-
-		return empty($children) ? '' : "<label$attrs>$children</label>";
-	}
-
-	protected function renderFieldWithChildren($tag, $attrs, $children) {
-		if (is_array($children)) {
-			$childrenArray = $children;
-			$children = '<option value="">'.__('Please select...', $this->plugin->getDomain()).'</option>';
-			foreach ($childrenArray as $value => $innerChildren) {
-				$attrs = self::generateElementAttrs(['value' => $value]);
-				$children .= "<option$attrs>$innerChildren</option>";
-			}
-		}
-
-		return "<$tag$attrs>$children</$tag>";
+	private function unsetValue() {
+		$this->value = '';
 	}
 }

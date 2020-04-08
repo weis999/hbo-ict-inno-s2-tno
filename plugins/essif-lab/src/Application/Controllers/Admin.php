@@ -6,93 +6,79 @@ defined('ABSPATH') or die();
 
 use TNO\EssifLab\Application\Workflows\ManageCredentials;
 use TNO\EssifLab\Application\Workflows\ManageHooks;
+use TNO\EssifLab\Application\Workflows\ManageInputs;
+use TNO\EssifLab\Application\Workflows\ManageIssuers;
+use TNO\EssifLab\Application\Workflows\ManageSchemas;
 use TNO\EssifLab\Contracts\Abstracts\Controller;
 use TNO\EssifLab\Contracts\Interfaces\RegistersPostTypes;
-use TNO\EssifLab\Presentation\Views\FormForHooks;
-use TNO\EssifLab\Presentation\Views\ListOfCredentials;
-use TNO\EssifLab\Presentation\Views\ListOfHooks;
+use TNO\EssifLab\Presentation\Views\ListWithAddAndUse;
+use TNO\EssifLab\Presentation\Views\ListWithCustomAdd;
 
 class Admin extends Controller implements RegistersPostTypes {
-	private $postTypes = [
-		'validation-policy',
-		'credential',
-		'issuer',
-		'schema',
+	private $icon = 'dashicons-lock';
+
+	private $capability = 'manage_options';
+
+	private $types = [
+		'validation-policy' => [
+			'postType' => true,
+			'related' => ['hook', 'credential'],
+		],
+		'hook' => [
+			'workflow' => ManageHooks::class,
+			'args' => [
+				'headings' => ['context', 'target'],
+			],
+		],
+		'credential' => [
+			'postType' => true,
+			'workflow' => ManageCredentials::class,
+			'related' => ['input', 'issuer', 'schema'],
+			'args' => [
+				'headings' => ['title', 'inputs'],
+			],
+		],
+		'input' => [
+			'workflow' => ManageInputs::class,
+			'args' => ['headings' => ['context', 'name']],
+		],
+		'issuer' => [
+			'postType' => true,
+			'workflow' => ManageIssuers::class,
+			'args' => ['headings' => ['title', 'signature']],
+		],
+		'schema' => [
+			'postType' => true,
+			'workflow' => ManageSchemas::class,
+			'args' => ['headings' => ['title', 'URL']],
+		],
 	];
 
 	public function getActions(): array {
 		$this->addAction('init', $this, 'registerPostTypes');
-		$this->addAction('admin_menu', $this, 'registerAdminMenuItem');
-		$this->addAction('add_meta_boxes', $this, 'addMetaBoxes');
-		$this->addAction('save_post_'.$this->postTypes[0], $this, 'registerValidationPolicyWorkflows', 10, 2);
+		$this->registerAdminMenuItem();
+		$this->registerMetaBoxes();
+		$this->registerWorkflowsHandler();
 
 		return $this->actions;
 	}
 
-	public function getFilters(): array {
-		return $this->filters;
+	private function typeHasPostType($type) {
+		$attr = 'postType';
+
+		return array_key_exists($attr, $type) && is_bool($type[$attr]) && $type[$attr] === true;
 	}
 
-	public function registerAdminMenuItem(): void {
-		add_menu_page($this->getName(), $this->getName(), 'manage_options', $this->getDomain(), null, 'dashicons-lock');
+	private function typesWithPostType() {
+		return array_filter($this->types, function ($type) {
+			return $this->typeHasPostType($type);
+		});
 	}
 
 	public function registerPostTypes(): void {
-		foreach ($this->postTypes as $postType) {
-			$this->registerPostType($postType);
+		foreach ($this->typesWithPostType() as $postType => $attrs) {
+			$this->addPostType($postType);
 		}
-	}
-
-	private function registerPostType($name): void {
-		$singular = ucfirst(str_replace('-', ' ', $name));
-		$plural = $this->getPluralFromSingular($singular);
-		register_post_type($name, [
-			'labels' => [
-				'name' => $plural,
-				'singular_name' => $singular,
-			],
-			'supports' => ['title'],
-			'public' => false,
-			'show_ui' => true,
-			'show_in_menu' => $this->getDomain(),
-		]);
-	}
-
-	public function addMetaBoxes(): void {
-		$data = $this->getPluginData();
-
-		$this->addHooksMetaBox($data);
-		$this->addCredentialMetaBox($data);
-	}
-
-	private function getJsonPostContentAsArray($post = null): array {
-		$post_content = 'post_content';
-		$post = empty($post) ? get_post() : $post;
-		$content = is_array($post) && array_key_exists($post_content, $post) ? $post[$post_content] : null;
-		$content = empty($content) && is_object($post) && property_exists($post, $post_content) ? $post->{$post_content} : $content;
-		$content = json_decode($content, true);
-
-		return empty($content) || ! is_array($content) ? [] : $content;
-	}
-
-	private function addHooksMetaBox($data): void {
-		$args = array_merge($this->getJsonPostContentAsArray(), [
-			'name' => ManageHooks::getFullActionName($this->getDomain(), ManageHooks::getActionName()),
-		]);
-		$this->addMetaBox($this->postTypes[0], 'Add new hook', new FormForHooks($data, $args));
-		$this->addMetaBox($this->postTypes[0], 'Active hooks', new ListOfHooks($data, $args));
-	}
-
-	private function addCredentialMetaBox($data): void {
-		$args = array_merge($this->getJsonPostContentAsArray(), [
-			'name' => ManageCredentials::getFullActionName($this->getDomain(), ManageCredentials::getActionName()),
-		]);
-//		$this->addMetaBox($this->postTypes[0], 'Related credentials', new ListOfCredentials($data, $args));
-	}
-
-	private function addMetaBox($screen, $title, $component): void {
-		$name = strtolower(str_replace(' ', '-', $title));
-		add_meta_box("$screen-$name", $title, [$component, 'display'], $screen, 'normal');
 	}
 
 	private function getPluralFromSingular($str): string {
@@ -114,11 +100,32 @@ class Admin extends Controller implements RegistersPostTypes {
 		return $str;
 	}
 
-	public function registerValidationPolicyWorkflows($post_id, $post): void {
-		$this->defaultSavePostChecks($post_id);
-		$this->removeAllBeforeActionExecution('save_post_'.$this->postTypes[0], function () use ($post) {
-			ManageHooks::register($this, $post);
-			ManageCredentials::register($this, $post);
+	private function addPostType($name): void {
+		$singular = ucfirst(str_replace('-', ' ', $name));
+		$plural = $this->getPluralFromSingular($singular);
+		register_post_type($name, [
+			'labels' => [
+				'name' => $plural,
+				'singular_name' => $singular,
+			],
+			'supports' => ['title'],
+			'public' => false,
+			'show_ui' => true,
+			'show_in_menu' => $this->getDomain(),
+		]);
+	}
+
+	private function registerAdminMenuItem(): void {
+		add_action('admin_menu', function () {
+			add_menu_page($this->getName(), $this->getName(), $this->capability, $this->getDomain(), null, $this->icon);
+		});
+	}
+
+	private function typesWithRelations() {
+		return array_filter($this->types, function ($type) {
+			$attr = 'related';
+
+			return array_key_exists($attr, $type) && is_array($type[$attr]) && count($type[$attr]);
 		});
 	}
 
@@ -144,5 +151,112 @@ class Admin extends Controller implements RegistersPostTypes {
 		// Restore filters
 		$wp_filter = $backup_wp_filter;
 		$merged_filters = $backup_merged_filters;
+	}
+
+	private function registerWorkflowsHandler(): void {
+		foreach ($this->typesWithRelations() as $type => $attrs) {
+			add_action('save_post_'.$type, function ($post_id, $post) use ($type) {
+				$this->defaultSavePostChecks($post_id);
+				$this->removeAllBeforeActionExecution('save_post_'.$type, function () use ($type, $post) {
+					$this->addWorkflows($type, $post);
+				});
+			}, 10, 2);
+		}
+	}
+
+	private function getRelatedTypes($type) {
+		$relations = array_key_exists($type, $this->types) && array_key_exists('related', $this->types[$type]) ? $this->types[$type]['related'] : [];
+
+		$output = [];
+
+		foreach ($relations as $relation) {
+			if (array_key_exists($relation, $this->types)) {
+				$output[$relation] = $this->types[$relation];
+			}
+		}
+
+		return $output;
+	}
+
+	private function getBaseName($subject) {
+		return $this->getDomain().'_'.$subject;
+	}
+
+	private function getCallableWorkflowFunc($typeAttr, $funcName): string {
+		$func = array_key_exists('workflow', $typeAttr) ? $typeAttr['workflow'].'::'.$funcName : $funcName;
+
+		return is_callable($func) ? $func : false;
+	}
+
+	private function addWorkflows($type, $post) {
+		$relations = $this->getRelatedTypes($type);
+		foreach ($relations as $k => $v) {
+			$func = $this->getCallableWorkflowFunc($v, 'register');
+			if ($func !== false) {
+				call_user_func($func, $this, $post, $this->getBaseName($k));
+			}
+		}
+	}
+
+	private function getMetaBoxArgs($v) {
+		$func = $this->getCallableWorkflowFunc($v, 'options');
+		$args = array_key_exists('args', $v) ? $v['args'] : [];
+		$args['options'] = $func !== false ? call_user_func($func) : [];
+
+		return $args;
+	}
+
+	private function registerMetaBoxes(): void {
+		add_action('add_meta_boxes', function () {
+			foreach (array_keys($this->typesWithRelations()) as $type) {
+				$relations = $this->getRelatedTypes($type);
+				foreach ($relations as $k => $v) {
+					$args = $this->getMetaBoxArgs($v);
+					if ($this->typeHasPostType($v)) {
+						$this->addListWithAddAndUseMetaBox($type, $k, $args);
+					} else {
+						$this->addListWithCustomAddMetaBox($type, $k, $args);
+					}
+				}
+			}
+		});
+	}
+
+	private function addListWithCustomAddMetaBox($postType, $subject, $args): void {
+		$data = $this->getPluginData();
+		$args = array_merge($this->getJsonPostContentAsArray(), [
+			'subject' => $subject,
+			'baseName' => $this->getBaseName($subject),
+		], $args);
+		$this->addMetaBox($postType, $subject, new ListWithCustomAdd($data, $args));
+	}
+
+	private function addListWithAddAndUseMetaBox($postType, $subject, $args): void {
+		$data = $this->getPluginData();
+		$args = array_merge($this->getJsonPostContentAsArray(), [
+			'subject' => $subject,
+			'baseName' => $this->getBaseName($subject),
+		], $args);
+		$this->addMetaBox($postType, $subject, new ListWithAddAndUse($data, $args));
+	}
+
+	private function getJsonPostContentAsArray($post = null): array {
+		$post_content = 'post_content';
+		$post = empty($post) ? get_post() : $post;
+		$content = is_array($post) && array_key_exists($post_content, $post) ? $post[$post_content] : null;
+		$content = empty($content) && is_object($post) && property_exists($post, $post_content) ? $post->{$post_content} : $content;
+		$content = json_decode($content, true);
+
+		return empty($content) || ! is_array($content) ? [] : $content;
+	}
+
+	private function addMetaBox($screen, $title, $component): void {
+		$name = strtolower(str_replace(' ', '-', $title));
+		$title = ucfirst($this->getPluralFromSingular($title));
+		add_meta_box("$screen-$name", $title, [$component, 'display'], $screen, 'normal');
+	}
+
+	public function getFilters(): array {
+		return $this->filters;
 	}
 }

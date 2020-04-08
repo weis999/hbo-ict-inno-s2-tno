@@ -15,11 +15,10 @@ abstract class Workflow extends Core implements IWorkflow {
 		$this->post = $post;
 	}
 
-	public static function register(ICore $pluginData, $post): void {
-		$key = static::getFullActionName($pluginData->getDomain(), static::getActionName());
+	public static function register(ICore $core, $post, $key): void {
 		if (is_array($_POST) && array_key_exists($key, $_POST)) {
 			$request = $_POST[$key];
-			$workflow = new static($pluginData->getPluginData(), $post);
+			$workflow = new static($core->getPluginData(), $post);
 			$workflow->execute($request);
 		}
 	}
@@ -45,7 +44,4 @@ abstract class Workflow extends Core implements IWorkflow {
 		return is_array($array) && array_key_exists($this->actionKey, $array);
 	}
 
-	public static function getFullActionName($prefix, $subject) {
-		return $prefix.'_'.$subject;
-	}
 }
