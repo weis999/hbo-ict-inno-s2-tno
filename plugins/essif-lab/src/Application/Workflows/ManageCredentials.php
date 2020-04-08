@@ -12,21 +12,21 @@ class ManageCredentials extends Workflow {
 
 	public function add($request) {
 		// TODO: add a hook to a validation policy
-		var_dump('adding a credential', $attrs);
+		var_dump('adding a credential', $request);
         if(!empty($this->getJsonPostContentAsArray()["credentials"])) {
             $equal = false;
             foreach ($this->getJsonPostContentAsArray()["credentials"] as $post_content_hooks_array) {
-                if ($post_content_hooks_array["context"] != $attrs["context"] && $post_content_hooks_array["target"] != $attrs["target"]) {
+                if ($post_content_hooks_array["context"] != $request["context"] && $post_content_hooks_array["target"] != $request["target"]) {
                     //hook is not linked to this validation policy yet
                 } else {
                     $equal = true;
                     //hook is already linked to this validation policy
                 }
             }
-            if(!$equal) $this->post->post_content = json_encode(array("credentials" => array_merge($this->getJsonPostContentAsArray()["credentials"], array($attrs))));
+            if(!$equal) $this->post->post_content = json_encode(array("credentials" => array_merge($this->getJsonPostContentAsArray()["credentials"], array($request))));
         }
         else{
-            $this->post->post_content = json_encode(array("credentials" => array($attrs)));
+            $this->post->post_content = json_encode(array("credentials" => array($request)));
         }
         wp_update_post($this->post, true);
 		die();
@@ -38,7 +38,6 @@ class ManageCredentials extends Workflow {
 
 	public function delete($request) {
 		// TODO: delete a hook of a validation policy
-        var_dump($_POST);
         var_dump($request, $this->getJsonPostContentAsArray(), $request["id"]);
         $array_deleted = $this->getJsonPostContentAsArray();
         unset($array_deleted["credentials"][$request["id"]]);
