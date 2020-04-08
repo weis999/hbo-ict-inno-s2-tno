@@ -108,9 +108,6 @@ class FormControl extends Component {
 			return array_search($key, $excluded) === false;
 		}, ARRAY_FILTER_USE_KEY);
 
-		var_dump($attributes);
-		die();
-
 
 		return self::generateElementAttrs($attributes);
 	}
