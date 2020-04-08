@@ -56,8 +56,8 @@ class PostList extends Component {
 	protected function renderItems(): string {
 		$output = '';
 		if (is_array($this->items) && count($this->items)) {
-			foreach ($this->items as $item) {
-				$output .= '<tr>'.$this->renderAttributes($item).'</tr>';
+			foreach ($this->items as $id => $item) {
+				$output .= '<tr>'.$this->renderAttributes($item, $id).'</tr>';
 			}
 		} else {
 			$output = '<tr class="no-items"><td colspan="99">'.__('No posts found.').'</td></tr>';
@@ -66,7 +66,8 @@ class PostList extends Component {
 		return $output;
 	}
 
-	protected function renderAttributes(array $item): string {
+	protected function renderAttributes(array $item, int $id): string {
+	    var_dump($id);
 		$output = '';
 		if (is_array($item)) {
 			$first = true;
@@ -79,7 +80,8 @@ class PostList extends Component {
 					$classes = array_merge($classes, ['column-title', 'column-primary']);
 					$attr = "<strong>$attr</strong>";
 					if (count($this->itemActions)) {
-						$id = array_key_exists($this->idAttr, $item) ? $item[$this->idAttr] : null;
+//						$id = array_key_exists($this->idAttr, $item) ? $item[$this->idAttr] : null;
+						var_dump($id, $item);
 						$classes = array_merge($classes, ['has-row-actions']);
 						$after .= $this->renderItemActions($id);
 					}
@@ -103,7 +105,7 @@ class PostList extends Component {
 			}
 			$actions .= '<span>'.$prefix.$component($id).'</span>';
 		}
-
+        var_dump($actions, $id);
 		return '<div class="row-actions">'.$actions.'</div>';
 	}
 }
