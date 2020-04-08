@@ -8,7 +8,7 @@ use TNO\EssifLab\Contracts\Interfaces\Core;
 class PostList extends Component {
 	private $viewable = false;
 
-	private $idAttr = 'id';
+	private $idAttr = 'ID';
 
 	private $headings = [];
 
@@ -119,13 +119,13 @@ class PostList extends Component {
 	protected function renderItemActions($item) {
 		$actions = '';
 		$first = true;
-		foreach ($this->itemActions as $component) {
+		foreach ($this->itemActions as $itemAction) {
 			$prefix = ' | ';
 			if ($first) {
 				$first = false;
 				$prefix = '';
 			}
-			$actions .= '<span>'.$prefix.$component($item).'</span>';
+			$actions .= '<span>'.$prefix.$itemAction($item).'</span>';
 		}
 
 		return '<div class="row-actions">'.$actions.'</div>';
