@@ -13,7 +13,7 @@ trait WithDeleteAction {
 
 	private function getDeleteFieldset($item): Fieldset {
 		$key = 'ID';
-		$value = array_key_exists($key, $item) ? $item[$key] : '';
+		$value = array_key_exists($key, $item) ? strval($item[$key]) : '';
 		return new Fieldset($this, [
 			'baseName' => $this->baseName,
 			'formControls' => [
