@@ -11,14 +11,14 @@ class ManageInputs extends Workflow {
 	}
 
 	public function add($attrs) {
-		// TODO: add a hook to a validation policy
+		// TODO: add a input to a credential
 	}
 
 	public function edit($request) {
-		// TODO: edit a hook of a validation policy
+		// TODO: edit a input to a credential
 	}
 
 	public function delete($request) {
-		// TODO: delete a hook of a validation policy
+		// TODO: delete a input to a credential
 	}
 }

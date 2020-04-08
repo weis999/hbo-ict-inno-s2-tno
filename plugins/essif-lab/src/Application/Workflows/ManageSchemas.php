@@ -11,16 +11,14 @@ class ManageSchemas extends Workflow {
 	}
 
 	public function add($attrs) {
-		// TODO: add a hook to a validation policy
-		var_dump('adding a credential', $attrs);
-		die();
+		// TODO: add a schema to a credential
 	}
 
 	public function edit($request) {
-		// TODO: edit a hook of a validation policy
+		// TODO: edit a schema to a credential
 	}
 
 	public function delete($request) {
-		// TODO: delete a hook of a validation policy
+		// TODO: delete a schema to a credential
 	}
 }

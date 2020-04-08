@@ -11,14 +11,14 @@ class ManageCredentials extends Workflow {
 	}
 
 	public function add($request) {
-		// TODO: add a hook to a validation policy
+		// TODO: add a credential to a validation policy
 	}
 
 	public function edit($request) {
-		// TODO: edit a hook of a validation policy
+		// TODO: edit a credential of a validation policy
 	}
 
 	public function delete($request) {
-		// TODO: delete a hook of a validation policy
+		// TODO: delete a credential of a validation policy
 	}
 }
