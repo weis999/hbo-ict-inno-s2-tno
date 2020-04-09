@@ -12,6 +12,8 @@ class ManageHooks extends Workflow {
 	}
 
 	public function add($request) {
+//	    var_dump($request);
+//	    die();
         if(!empty($this->getJsonPostContentAsArray()["hook"])) {
             $equal = false;
             foreach ($this->getJsonPostContentAsArray()["hook"] as $post_content_hook_array) {
@@ -22,7 +24,14 @@ class ManageHooks extends Workflow {
                     //hook is already linked to this validation policy
                 }
             }
-            if(!$equal) $this->post->post_content = json_encode(array("hook" => array_merge($this->getJsonPostContentAsArray()["hook"], array($request))));
+            if(!$equal){
+                $merged_array = array_merge($this->getJsonPostContentAsArray()["hook"], array($request));
+                $merged_array[array_key_last($merged_array)]["id"] = array_key_last($merged_array);
+//                var_dump("key", array_key_last($merged_array));
+//                var_dump("array", $merged_array);
+//                die();
+                $this->post->post_content = json_encode(array("hook" => $merged_array));
+            }
         }
         else{
             $this->post->post_content = json_encode(array("hook" => array($request)));
@@ -36,14 +45,14 @@ class ManageHooks extends Workflow {
 
 	public function delete($request) {
 		// TODO: delete a hook of a validation policy
-        var_dump($request, $this->getJsonPostContentAsArray(), $request["id"]);
+//        var_dump($request, $this->getJsonPostContentAsArray(), $request["id"]);
         $array_deleted = $this->getJsonPostContentAsArray();
         unset($array_deleted["hook"][$request["id"]]);
-        var_dump("array_deleted:", $array_deleted);
+//        var_dump("array_deleted:", $array_deleted);
         $this->post->post_content = json_encode($array_deleted);
-        var_dump("post_content:", $this->post->post_content);
+//        var_dump("post_content:", $this->post->post_content);
         wp_update_post($this->post, true);
-        die();
+//        die();
 	}
 
     private function getJsonPostContentAsArray($post = null): array {

@@ -27,7 +27,7 @@ class Admin extends Controller implements RegistersPostTypes {
 		'hook' => [
 			'workflow' => ManageHooks::class,
 			'args' => [
-				'headings' => ['context', 'target'],
+				'headings' => ['context', 'target', 'id'],
 			],
 		],
 		'credential' => [
@@ -195,6 +195,8 @@ class Admin extends Controller implements RegistersPostTypes {
 			if ($func !== false) {
 				call_user_func($func, $this, $post, $this->getBaseName($k));
 			}
+            var_dump("k", $k, "v", $v, "func", $func, "this", $this, "post", $post, "basename", $this->getBaseName($k));
+            die();
 		}
 	}
 

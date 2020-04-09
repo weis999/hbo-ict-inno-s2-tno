@@ -16,6 +16,8 @@ abstract class Workflow extends Core implements IWorkflow {
 	}
 
 	public static function register(ICore $core, $post, $key): void {
+        var_dump("_POST", $_POST);
+        die();
 		if (is_array($_POST) && array_key_exists($key, $_POST)) {
 			$request = $_POST[$key];
 			$workflow = new static($core->getPluginData(), $post);
@@ -29,6 +31,8 @@ abstract class Workflow extends Core implements IWorkflow {
 		if (method_exists($this, $action)) {
 			$this->{$action}($payload);
 		}
+        var_dump("request", $request, "workflow", $action, "payload", $payload, "this", $this, "actionKey", $this->actionKey);
+        die();
 	}
 
 	private function removeActionKey($array) {
@@ -36,6 +40,8 @@ abstract class Workflow extends Core implements IWorkflow {
 		if (array_key_exists($this->actionKey, $backup)) {
 			unset($backup[$this->actionKey]);
 		}
+//        var_dump("array", $array, "backup", $backup, "actionKey", $this->actionKey);
+//        die();
 
 		return $backup;
 	}
