@@ -5,9 +5,11 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.1",
-        "laravel/lumen-installer": "dev-master"
+        "phpunit/phpunit": "^9"
     },
     "autoload": {
-        "psr-4": {"TNO\\EssifLab\\": "src/"}
+        "psr-4": {
+            "TNO\\EssifLab\\": "src"
+        }
     }
 }
