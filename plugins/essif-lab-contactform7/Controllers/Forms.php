@@ -3,7 +3,7 @@
 
 namespace TNO\EssifLabCF7\Controllers;
 
-class Forms
+class FormControls
 {
     private function getAllForms() {
         $args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);

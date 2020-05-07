@@ -2,17 +2,12 @@
 
 namespace TNO\EssifLab\Application\Workflows;
 
-use mysql_xdevapi\Exception;
-use TNO\EssifLab\CF7\Controllers\Forms;
 use TNO\EssifLab\Contracts\Abstracts\Workflow;
-use TNO\EssifLab\Application\Workflows;
-
 
 class ManageHooks extends Workflow {
-
 	public static function options(): array {
-        $res = apply_filters('jacks_boast', '');
-		return $res;
+        return apply_filters('essif_options_hooks', []);
+		//return ['context' => $context, 'target' => $target];
 	}
 
 	public function add($request) {

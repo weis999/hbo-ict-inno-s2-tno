@@ -6,7 +6,8 @@ use TNO\EssifLab\Contracts\Abstracts\Workflow;
 
 class ManageCredentials extends Workflow {
 	public static function options(): array {
-		// TODO: load all selectable options to be displayed in the select lists.
+        return apply_filters('essif_options_hooks_id', []);
+        // TODO: load all selectable options to be displayed in the select lists.
 		return [];
 	}
 
