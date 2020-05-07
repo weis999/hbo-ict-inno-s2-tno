@@ -17,3 +17,14 @@ if (!function_exists('get_plugin_data')) {
 // Initialize requirements
 require_once('Controllers/Initialize/CF7Button.php');
 require_once('Controllers/Initialize/Script.php');
+
+// Add filter
+add_filter( 'jacks_boast' , 'essif_hook_data');
+function essif_hook_data()
+{
+    $context = ['CF7' => 'CF7'];
+    $target = ['foo' => 'foo', 'bar' => 'bar'];
+    $res = ['context' => $context, 'target' => $target];
+    return $res;
+
+}

@@ -8,13 +8,14 @@ class Forms
     private function getAllForms() {
         $args = array('post_type' => 'wpcf7_contact_form', 'posts_per_page' => -1);
         $cf7Forms = get_posts( $args );
-        return $cf7Forms;
+        return "Test";
     }
 
     public function getAllFormsIdTitle() {
         $cf7Forms = getAllForms();
         $post_ids = wp_list_pluck( $cf7Forms , 'ID' );
         $form_titles = wp_list_pluck( $cf7Forms , 'post_title' );
+        return ['foo' => 'foo', 'bar' => 'bar'];
         return array($post_ids, $form_titles);
     }
 
@@ -30,5 +31,14 @@ class Forms
         $post = get_post($id);
         $fields = $this->extractFields($post);
         return $fields;
+    }
+
+    function essif_hook_data()
+    {
+        $context = ['CF7' => 'CF7'];
+        $target = ['foo' => 'foo', 'bar' => 'bar'];
+        $res = ['context' => $context, 'target' => $target];
+        return $res;
+
     }
 }

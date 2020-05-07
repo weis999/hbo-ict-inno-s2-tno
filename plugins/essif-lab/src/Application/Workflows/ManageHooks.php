@@ -3,12 +3,16 @@
 namespace TNO\EssifLab\Application\Workflows;
 
 use mysql_xdevapi\Exception;
+use TNO\EssifLab\CF7\Controllers\Forms;
 use TNO\EssifLab\Contracts\Abstracts\Workflow;
+use TNO\EssifLab\Application\Workflows;
+
 
 class ManageHooks extends Workflow {
+
 	public static function options(): array {
-		// TODO: load all selectable options to be displayed in the select lists.
-		return ['context' => ['hello' => 'hello', 'world' => 'world'], 'target' => ['foo' => 'foo', 'bar' => 'bar']];
+        $res = apply_filters('jacks_boast', '');
+		return $res;
 	}
 
 	public function add($request) {
