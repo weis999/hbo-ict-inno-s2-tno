@@ -7,8 +7,6 @@ use TNO\EssifLab\Presentation\Components\Fieldset;
 trait WithDeleteAction {
 	public function getDeleteAction(): callable  {
 		return function ($item) {
-            var_dump("item", $item);
-            die();
 			return $this->getDeleteFieldset($item)->render();
 		};
 	}

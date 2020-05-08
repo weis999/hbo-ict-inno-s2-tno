@@ -36,6 +36,9 @@ class FormControl extends Component {
 				$this->{$key} = $value;
 			}
 		}
+
+		wp_enqueue_script("jquery");
+		$this->loadJS();
 	}
 
 	public function render(): string {
@@ -91,6 +94,15 @@ class FormControl extends Component {
 	}
 
 	protected function renderInputTag($children, $attributes) {
+	    if($children == "Delete"){
+//            var_dump("tag", $this->tag, "attributes", $attributes, "children", $children);
+//            die();
+            preg_match('/name="(.*?)"/', $attributes, $name);
+//            $attributes .= "onclick='deleteCustomPost(".$name.")'";
+            $attributes = "class='button-link' onclick='deleteCustomPost(\"".$name[1]."\")'";
+//            echo "onclick='deleteCustomPost(".$name[1].")'";
+//            var_dump("name", $name[1]);
+        }
 		return '<'.$this->tag.$attributes.(empty($children) ? '/>' : '>'.$children.'</'.$this->tag.'>');
 	}
 
@@ -114,4 +126,23 @@ class FormControl extends Component {
 	private function unsetValue() {
 		$this->value = '';
 	}
+
+	private function loadJS(){
+        echo '<script type="text/javascript">
+                function deleteCustomPost(postName){
+                    postNameExtracted = /essif-lab_hook/.exec(postName);
+                    if(/essif-lab_hook/.test(postName)){
+                        jQuery.post(
+                            ajaxurl,
+                            {
+                                "action": "essif_delete_hooks",
+                                "name": postNameExtracted[0]
+                            },
+                            (response) => location.reload()
+                        );
+//                        jQuery.post("api", {"action": "delete", "name": postNameExtracted[0]}, (response) => alert("ajax call performed"));
+                    }
+                }
+            </script>';
+    }
 }

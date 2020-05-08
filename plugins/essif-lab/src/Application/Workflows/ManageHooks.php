@@ -2,18 +2,16 @@
 
 namespace TNO\EssifLab\Application\Workflows;
 
-use mysql_xdevapi\Exception;
 use TNO\EssifLab\Contracts\Abstracts\Workflow;
 
 class ManageHooks extends Workflow {
+
 	public static function options(): array {
 		// TODO: load all selectable options to be displayed in the select lists.
 		return ['context' => ['hello' => 'hello', 'world' => 'world'], 'target' => ['foo' => 'foo', 'bar' => 'bar']];
 	}
 
 	public function add($request) {
-//	    var_dump($request);
-//	    die();
         if(!empty($this->getJsonPostContentAsArray()["hook"])) {
             $equal = false;
             foreach ($this->getJsonPostContentAsArray()["hook"] as $post_content_hook_array) {
@@ -26,10 +24,7 @@ class ManageHooks extends Workflow {
             }
             if(!$equal){
                 $merged_array = array_merge($this->getJsonPostContentAsArray()["hook"], array($request));
-                $merged_array[array_key_last($merged_array)]["id"] = array_key_last($merged_array);
-//                var_dump("key", array_key_last($merged_array));
-//                var_dump("array", $merged_array);
-//                die();
+                $merged_array[array_key_last($merged_array)]["ID"] = array_key_last($merged_array);
                 $this->post->post_content = json_encode(array("hook" => $merged_array));
             }
         }
@@ -44,15 +39,11 @@ class ManageHooks extends Workflow {
 	}
 
 	public function delete($request) {
-		// TODO: delete a hook of a validation policy
-//        var_dump($request, $this->getJsonPostContentAsArray(), $request["id"]);
-        $array_deleted = $this->getJsonPostContentAsArray();
+        $array_deleted = $this->getJsonPostContentAsArray($this->post);
         unset($array_deleted["hook"][$request["id"]]);
-//        var_dump("array_deleted:", $array_deleted);
         $this->post->post_content = json_encode($array_deleted);
-//        var_dump("post_content:", $this->post->post_content);
         wp_update_post($this->post, true);
-//        die();
+        wp_redirect($_SERVER['HTTP_REFERER']);
 	}
 
     private function getJsonPostContentAsArray($post = null): array {

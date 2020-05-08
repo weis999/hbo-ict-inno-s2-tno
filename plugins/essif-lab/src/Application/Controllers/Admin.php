@@ -27,7 +27,7 @@ class Admin extends Controller implements RegistersPostTypes {
 		'hook' => [
 			'workflow' => ManageHooks::class,
 			'args' => [
-				'headings' => ['context', 'target', 'id'],
+				'headings' => ['context', 'target'],
 			],
 		],
 		'credential' => [
@@ -54,11 +54,15 @@ class Admin extends Controller implements RegistersPostTypes {
 		],
 	];
 
-	public function getActions(): array {
+    private $manageHooks;
+
+    public function getActions(): array {
 		$this->addAction('init', $this, 'registerPostTypes');
 		$this->registerAdminMenuItem();
 		$this->registerMetaBoxes();
 		$this->registerWorkflowsHandler();
+
+        $this->addAction('wp_ajax_essif_delete_hooks', $this, 'essif_ajax_delete_hooks_handler');
 
 		return $this->actions;
 	}
@@ -156,11 +160,17 @@ class Admin extends Controller implements RegistersPostTypes {
 	private function registerWorkflowsHandler(): void {
 		foreach ($this->typesWithRelations() as $type => $attrs) {
 			add_action('save_post_'.$type, function ($post_id, $post) use ($type) {
+//                var_dump("_POST", $_POST);
+//                die();
 				$this->defaultSavePostChecks($post_id);
 				$this->removeAllBeforeActionExecution('save_post_'.$type, function () use ($type, $post) {
 					$this->addWorkflows($type, $post);
 				});
+//                var_dump("post_id", $post_id, "post", $post, "this", $this, "_POST", $_POST);
+//                die();
 			}, 10, 2);
+//            var_dump("type", $type, "attrs", $attrs, "post_id");
+//            die();
 		}
 	}
 
@@ -195,8 +205,8 @@ class Admin extends Controller implements RegistersPostTypes {
 			if ($func !== false) {
 				call_user_func($func, $this, $post, $this->getBaseName($k));
 			}
-            var_dump("k", $k, "v", $v, "func", $func, "this", $this, "post", $post, "basename", $this->getBaseName($k));
-            die();
+//            var_dump("relations", $relations, "k", $k, "v", $v, "func", $func, "this", $this, "post", $post, "basename", $this->getBaseName($k), "_POST", $_POST);
+//            die();
 		}
 	}
 
@@ -261,4 +271,15 @@ class Admin extends Controller implements RegistersPostTypes {
 	public function getFilters(): array {
 		return $this->filters;
 	}
+
+	public function essif_ajax_delete_hooks_handler() {
+        $this->manageHooks = new ManageHooks($this->getPluginData(), get_post(52));
+
+        // TODO: fix request
+        $request = ['id' => 3];
+
+        $this->manageHooks->delete($request);
+
+        return "test";
+    }
 }

@@ -38,12 +38,12 @@ class ManageCredentials extends Workflow {
 
 	public function delete($request) {
 		// TODO: delete a hook of a validation policy
-        var_dump($request, $this->getJsonPostContentAsArray(), $request["id"]);
+//        var_dump($request, $this->getJsonPostContentAsArray(), $request["id"]);
         $array_deleted = $this->getJsonPostContentAsArray();
         unset($array_deleted["credentials"][$request["id"]]);
-        var_dump("array_deleted:", $array_deleted);
+//        var_dump("array_deleted:", $array_deleted);
         $this->post->post_content = json_encode($array_deleted);
-        var_dump("post_content:", $this->post->post_content);
+//        var_dump("post_content:", $this->post->post_content);
 //        wp_update_post($this->post, true);
         die();
 	}
