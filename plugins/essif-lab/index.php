@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) or die();
 
 // Load all classes of this program automatically
 require plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
-require_once "crud_api.php";
 
 // Import the class to initiate the plugin
 use TNO\EssifLab\Application\Main;

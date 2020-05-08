@@ -2,11 +2,13 @@
 
 namespace TNO\EssifLab\Presentation\Components;
 
+use Exception;
 use TNO\EssifLab\Contracts\Abstracts\Component;
 use TNO\EssifLab\Contracts\Interfaces\Core;
 
 class FormControl extends Component {
-	private $name = '';
+    private const INPUT = 'input';
+    private $name = '';
 
 	private $value = '';
 
@@ -14,7 +16,7 @@ class FormControl extends Component {
 
 	private $type = '';
 
-	private $tag = 'input';
+	private $tag = self::INPUT;
 
 	private $class = '';
 
@@ -27,6 +29,8 @@ class FormControl extends Component {
 	private $label = '';
 
 	private $children = '';
+
+	private STATIC $renderedIDAttributes = '';
 
 	public function __construct(Core $plugin, $args = []) {
 		parent::__construct($plugin);
@@ -48,26 +52,28 @@ class FormControl extends Component {
 	public function getFormControl(): array {
 		return [
 			'label' => $this->renderLabel(),
-			'input' => $this->renderInput(),
+			self::INPUT => $this->renderInput(),
 		];
 	}
 
 	protected function renderLabel() {
 		$attrs = self::generateElementAttrs(['for' => $this->name]);
-
 		return empty($this->label) ? '' : "<label$attrs>$this->label</label>";
 	}
 
 	protected function renderInput() {
 		$renderedChildren = $this->renderInputChildren();
 		$renderedAttributes = $this->renderInputAttributes();
+		if(preg_match('/name="(.*?)(\[ID])"/', $renderedAttributes)){
+		    self::$renderedIDAttributes = $renderedAttributes;
+        }
 
 		return $this->renderInputTag($renderedChildren, $renderedAttributes);
 	}
 
 	protected function renderInputChildren(): string {
 		switch ($this->tag) {
-			case 'input':
+			case self::INPUT:
 				return '';
 
 			case 'select':
@@ -95,13 +101,16 @@ class FormControl extends Component {
 
 	protected function renderInputTag($children, $attributes) {
 	    if($children == "Delete"){
-//            var_dump("tag", $this->tag, "attributes", $attributes, "children", $children);
-//            die();
-            preg_match('/name="(.*?)"/', $attributes, $name);
-//            $attributes .= "onclick='deleteCustomPost(".$name.")'";
-            $attributes = "class='button-link' onclick='deleteCustomPost(\"".$name[1]."\")'";
-//            echo "onclick='deleteCustomPost(".$name[1].")'";
-//            var_dump("name", $name[1]);
+            preg_match('/name="(.*?)(?=\[)/', $attributes, $name);
+            preg_match('/name="(.*?)(?=\[)/', self::$renderedIDAttributes, $ID_name);
+            if($name[1] === $ID_name[1]){
+                preg_match('/(?<=value=")(.*?)(?=")/', self::$renderedIDAttributes, $ID);
+                $attributes = "class='button-link' onclick='deleteCustomPost(\"".$name[1]."\", "."\"$ID[1]\"".")'";
+            }
+            else{
+                // TODO: add custom Exception (There is no ID)
+                throw new Exception("There is no ID");
+            }
         }
 		return '<'.$this->tag.$attributes.(empty($children) ? '/>' : '>'.$children.'</'.$this->tag.'>');
 	}
@@ -129,18 +138,16 @@ class FormControl extends Component {
 
 	private function loadJS(){
         echo '<script type="text/javascript">
-                function deleteCustomPost(postName){
-                    postNameExtracted = /essif-lab_hook/.exec(postName);
+                function deleteCustomPost(postName, ID){
                     if(/essif-lab_hook/.test(postName)){
                         jQuery.post(
                             ajaxurl,
                             {
                                 "action": "essif_delete_hooks",
-                                "name": postNameExtracted[0]
+                                "ID": ID
                             },
-                            (response) => location.reload()
+                            () => location.reload()
                         );
-//                        jQuery.post("api", {"action": "delete", "name": postNameExtracted[0]}, (response) => alert("ajax call performed"));
                     }
                 }
             </script>';

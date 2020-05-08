@@ -24,8 +24,6 @@ class PostListActions extends Component {
 			if (property_exists($this, $key) && gettype($this->{$key}) === gettype($value)) {
 				$this->{$key} = $value;
 			}
-//            var_dump("args", $args, "key", $key, "value", $value);
-//            die();
 		}
 	}
 
