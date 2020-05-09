@@ -27,7 +27,7 @@ abstract class Workflow extends Core implements IWorkflow {
 		$action = $this->hasActionKey($request) ? $request[$this->actionKey] : null;
 		$payload = $this->removeActionKey($request);
 		if (method_exists($this, $action)) {
-			$this->{$action}($payload);
+            $this->{$action}($payload);
 		}
 	}
 

@@ -59,7 +59,9 @@ class PostList extends Component {
 		$output = '';
 		if (is_array($this->items) && count($this->items)) {
 			foreach ($this->items as $item) {
-				$output .= '<tr>'.$this->renderItemAttributes($item).'</tr>';
+			    if(is_array($item)){
+                    $output .= '<tr>'.$this->renderItemAttributes($item).'</tr>';
+                }
 			}
 		} else {
 			$output = '<tr class="no-items"><td colspan="99">'.__('No posts found.').'</td></tr>';

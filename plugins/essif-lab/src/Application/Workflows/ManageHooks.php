@@ -2,35 +2,46 @@
 
 namespace TNO\EssifLab\Application\Workflows;
 
+use Exception;
 use TNO\EssifLab\Contracts\Abstracts\Workflow;
+use TNO\EssifLab\Services\PostUtil;
 
 class ManageHooks extends Workflow {
-	public static function options(): array {
+    private const MAX_ID = "maxID";
+    private const CONTEXT = 'context';
+    private const TARGET = 'target';
+
+    public static function options(): array {
 		// TODO: load all selectable options to be displayed in the select lists.
-		return ['context' => ['hello' => 'hello', 'world' => 'world'], 'target' => ['foo' => 'foo', 'bar' => 'bar']];
+		return [self::CONTEXT => ['hello' => 'hello', 'world' => 'world'], self::TARGET => ['foo' => 'foo', 'bar' => 'bar']];
 	}
 
 	public function add($request) {
-		$data = $this->getJsonPostContentAsArray();
+		$data = PostUtil::getJsonPostContentAsArray();
 		$hooks = array_key_exists('hook', $data) ? $data['hook'] : null;
 
 		if ($this->requestIsEmpty($request)) {
 			// TODO: add custom exception (request is empty)
-			throw new \Exception('request is empty');
+			throw new Exception('request is empty');
 		}
 
-		if (! empty($hooks)) {
+		if (!empty($hooks)) {
 			if ($this->doesHookAlreadyExists($hooks, $request)) {
 				// TODO: add custom exception (request already exists)
-				throw new \Exception('request already exists');
+				throw new Exception('request already exists');
 			}
-			$hooks[] = $this->generateHookRecord($hooks, $request);
+			$request = $this->generateHookRecord($hooks, $request);
+            $hooks[self::MAX_ID] = $request["ID"];
+			$hooks[] = $request;
 		} else {
-			$hooks = [$this->generateHookRecord($hooks, $request)];
+            $request = $this->generateHookRecord($hooks, $request);
+            $hooks = [];
+            $hooks[self::MAX_ID] = $request["ID"];
+            $hooks[] = $request;
 		}
 
 		$this->post->post_content = json_encode(array_merge($data, ['hook' => $hooks]));
-		wp_update_post($this->post);
+		wp_update_post($this->post, true);
 	}
 
 	private function requestIsEmpty($request): bool {
@@ -39,18 +50,17 @@ class ManageHooks extends Workflow {
 
 	private function doesHookAlreadyExists($hooks, $request): bool {
 		return count(array_filter($hooks, function ($v) use ($request) {
-				return $v['context'] !== $request['context'] || $v['target'] !== $request['target'];
+				return $v[self::CONTEXT] !== $request[self::CONTEXT] || $v[self::TARGET] !== $request[self::TARGET];
 			})) !== count($hooks);
 	}
 
-	private function generateID($hooks): int {
-		$last = is_array($hooks) && array_key_exists(count($hooks) - 1, $hooks) ? $hooks[count($hooks) - 1] : null;
-
-		return ! empty($last) && array_key_exists('ID', $last) ? $last['ID'] : 1;
+	private function generateHookRecord($hooks, $request): array {
+	    $request["ID"] = $this->generateID($hooks);
+		return $request;
 	}
 
-	private function generateHookRecord($hooks, $request): array {
-		return array_merge(['ID' => $this->generateID($hooks)], $request);
+	private function generateID($hooks): int {
+        return is_array($hooks) && array_key_exists(self::MAX_ID, $hooks) ? ++$hooks[self::MAX_ID] : 1;
 	}
 
 	public function edit($request) {
@@ -58,24 +68,17 @@ class ManageHooks extends Workflow {
 	}
 
 	public function delete($request) {
-		// TODO: delete a hook of a validation policy
-		var_dump($request, $this->getJsonPostContentAsArray(), $request["id"]);
-		$array_deleted = $this->getJsonPostContentAsArray();
-		unset($array_deleted["hook"][$request["id"]]);
-		var_dump("array_deleted:", $array_deleted);
-		$this->post->post_content = json_encode($array_deleted);
-		var_dump("post_content:", $this->post->post_content);
-		wp_update_post($this->post, true);
-		die();
-	}
-
-	private function getJsonPostContentAsArray($post = null): array {
-		$post_content = 'post_content';
-		$post = empty($post) ? get_post() : $post;
-		$content = is_array($post) && array_key_exists($post_content, $post) ? $post[$post_content] : null;
-		$content = empty($content) && is_object($post) && property_exists($post, $post_content) ? $post->{$post_content} : $content;
-		$content = json_decode($content, true);
-
-		return empty($content) || ! is_array($content) ? [] : $content;
+        $array_deleted = PostUtil::getJsonPostContentAsArray($this->post);
+        foreach ($array_deleted["hook"] as $key => $array){
+            if($key === self::MAX_ID){
+                continue;
+            }
+            if(array_search($request["ID"], $array) !== FALSE){
+                unset($array_deleted["hook"][$key]);
+                break;
+            }
+        }
+        $this->post->post_content = json_encode($array_deleted);
+        wp_update_post($this->post, true);
 	}
 }

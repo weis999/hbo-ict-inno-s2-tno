@@ -13,58 +13,69 @@ use TNO\EssifLab\Contracts\Abstracts\Controller;
 use TNO\EssifLab\Contracts\Interfaces\RegistersPostTypes;
 use TNO\EssifLab\Presentation\Views\ListWithAddAndUse;
 use TNO\EssifLab\Presentation\Views\ListWithCustomAdd;
+use TNO\EssifLab\Services\PostUtil;
 
 class Admin extends Controller implements RegistersPostTypes {
-	private $icon = 'dashicons-lock';
+    private const POST_TYPE = 'postType';
+    private const RELATED = 'related';
+    private const WORKFLOW = 'workflow';
+    private const HEADINGS = 'headings';
+    private const TITLE = 'title';
+    private const CONTEXT = 'context';
+    private $icon = 'dashicons-lock';
 
 	private $capability = 'manage_options';
 
 	private $types = [
 		'validation-policy' => [
-			'postType' => true,
-			'related' => ['hook', 'credential'],
+			self::POST_TYPE => true,
+			self::RELATED => ['hook', 'credential'],
 		],
 		'hook' => [
-			'workflow' => ManageHooks::class,
+			self::WORKFLOW => ManageHooks::class,
 			'args' => [
-				'headings' => ['context', 'target'],
+				self::HEADINGS => [self::CONTEXT, 'target'],
 			],
 		],
 		'credential' => [
-			'postType' => true,
-			'workflow' => ManageCredentials::class,
-			'related' => ['input', 'issuer', 'schema'],
+			self::POST_TYPE => true,
+			self::WORKFLOW => ManageCredentials::class,
+			self::RELATED => ['input', 'issuer', 'schema'],
 			'args' => [
-				'headings' => ['title', 'inputs'],
+				self::HEADINGS => [self::TITLE, 'inputs'],
 			],
 		],
 		'input' => [
-			'workflow' => ManageInputs::class,
-			'args' => ['headings' => ['context', 'name']],
+			self::WORKFLOW => ManageInputs::class,
+			'args' => [self::HEADINGS => [self::CONTEXT, 'name']],
 		],
 		'issuer' => [
-			'postType' => true,
-			'workflow' => ManageIssuers::class,
-			'args' => ['headings' => ['title', 'signature']],
+			self::POST_TYPE => true,
+			self::WORKFLOW => ManageIssuers::class,
+			'args' => [self::HEADINGS => [self::TITLE, 'signature']],
 		],
 		'schema' => [
-			'postType' => true,
-			'workflow' => ManageSchemas::class,
-			'args' => ['headings' => ['title', 'URL']],
+			self::POST_TYPE => true,
+			self::WORKFLOW => ManageSchemas::class,
+			'args' => [self::HEADINGS => [self::TITLE, 'URL']],
 		],
 	];
 
-	public function getActions(): array {
+    private $manageHooks;
+
+    public function getActions(): array {
 		$this->addAction('init', $this, 'registerPostTypes');
 		$this->registerAdminMenuItem();
 		$this->registerMetaBoxes();
 		$this->registerWorkflowsHandler();
 
+        $this->addAction('wp_ajax_essif_delete_hooks', $this, 'essif_ajax_delete_hooks_handler');
+
 		return $this->actions;
 	}
 
 	private function typeHasPostType($type) {
-		$attr = 'postType';
+		$attr = self::POST_TYPE;
 
 		return array_key_exists($attr, $type) && is_bool($type[$attr]) && $type[$attr] === true;
 	}
@@ -108,7 +119,7 @@ class Admin extends Controller implements RegistersPostTypes {
 				'name' => $plural,
 				'singular_name' => $singular,
 			],
-			'supports' => ['title'],
+			'supports' => [self::TITLE],
 			'public' => false,
 			'show_ui' => true,
 			'show_in_menu' => $this->getDomain(),
@@ -165,7 +176,7 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	private function getRelatedTypes($type) {
-		$relations = array_key_exists($type, $this->types) && array_key_exists('related', $this->types[$type]) ? $this->types[$type]['related'] : [];
+		$relations = array_key_exists($type, $this->types) && array_key_exists(self::RELATED, $this->types[$type]) ? $this->types[$type][self::RELATED] : [];
 
 		$output = [];
 
@@ -183,16 +194,16 @@ class Admin extends Controller implements RegistersPostTypes {
 	}
 
 	private function getCallableWorkflowFunc($typeAttr, $funcName): string {
-		$func = array_key_exists('workflow', $typeAttr) ? $typeAttr['workflow'].'::'.$funcName : $funcName;
+		$func = array_key_exists(self::WORKFLOW, $typeAttr) ? $typeAttr[self::WORKFLOW].'::'.$funcName : $funcName;
 
-		return is_callable($func) ? $func : false;
+		return is_callable($func) ? $func : bool_from_yn('n');
 	}
 
 	private function addWorkflows($type, $post) {
 		$relations = $this->getRelatedTypes($type);
 		foreach ($relations as $k => $v) {
 			$func = $this->getCallableWorkflowFunc($v, 'register');
-			if ($func !== false) {
+			if ($func) {
 				call_user_func($func, $this, $post, $this->getBaseName($k));
 			}
 		}
@@ -201,7 +212,7 @@ class Admin extends Controller implements RegistersPostTypes {
 	private function getMetaBoxArgs($v) {
 		$func = $this->getCallableWorkflowFunc($v, 'options');
 		$args = array_key_exists('args', $v) ? $v['args'] : [];
-		$args['options'] = $func !== false ? call_user_func($func) : [];
+		$args['options'] = $func ? call_user_func($func) : [];
 
 		return $args;
 	}
@@ -224,7 +235,7 @@ class Admin extends Controller implements RegistersPostTypes {
 
 	private function addListWithCustomAddMetaBox($postType, $subject, $args): void {
 		$data = $this->getPluginData();
-		$args = array_merge($this->getJsonPostContentAsArray(), [
+		$args = array_merge(PostUtil::getJsonPostContentAsArray(), [
 			'subject' => $subject,
 			'baseName' => $this->getBaseName($subject),
 		], $args);
@@ -233,21 +244,11 @@ class Admin extends Controller implements RegistersPostTypes {
 
 	private function addListWithAddAndUseMetaBox($postType, $subject, $args): void {
 		$data = $this->getPluginData();
-		$args = array_merge($this->getJsonPostContentAsArray(), [
+		$args = array_merge(PostUtil::getJsonPostContentAsArray(), [
 			'subject' => $subject,
 			'baseName' => $this->getBaseName($subject),
 		], $args);
 		$this->addMetaBox($postType, $subject, new ListWithAddAndUse($data, $args));
-	}
-
-	private function getJsonPostContentAsArray($post = null): array {
-		$post_content = 'post_content';
-		$post = empty($post) ? get_post() : $post;
-		$content = is_array($post) && array_key_exists($post_content, $post) ? $post[$post_content] : null;
-		$content = empty($content) && is_object($post) && property_exists($post, $post_content) ? $post->{$post_content} : $content;
-		$content = json_decode($content, true);
-
-		return empty($content) || ! is_array($content) ? [] : $content;
 	}
 
 	private function addMetaBox($screen, $title, $component): void {
@@ -259,4 +260,11 @@ class Admin extends Controller implements RegistersPostTypes {
 	public function getFilters(): array {
 		return $this->filters;
 	}
+
+	public function essif_ajax_delete_hooks_handler() {
+        $this->manageHooks = new ManageHooks($this->getPluginData(), get_post(52));
+        $this->manageHooks->delete($_POST);
+
+        return "deleted";
+    }
 }
