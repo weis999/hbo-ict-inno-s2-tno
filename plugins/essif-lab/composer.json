@@ -1,15 +1,23 @@
 {
-    "name": "tno/essif-lab",
-    "type": "project",
-    "license": "mit",
-    "minimum-stability": "dev",
-    "require": {
-        "php": ">=7.1",
-        "phpunit/phpunit": "^9"
-    },
-    "autoload": {
-        "psr-4": {
-            "TNO\\EssifLab\\": "src"
-        }
-    }
+  "name": "tno/essif-lab",
+  "type": "project",
+  "license": "mit",
+  "require": {
+	"php": ">=7.1",
+	"haydenpierce/class-finder": "^0.4.2",
+	"ext-json": "*"
+  },
+  "require-dev": {
+	"phpunit/phpunit": "^8"
+  },
+  "autoload": {
+	"psr-4": {
+	  "TNO\\EssifLab\\": "src/"
+	}
+  },
+  "autoload-dev": {
+	"psr-4": {
+	  "TNO\\EssifLab\\Tests\\": "tests/"
+	}
+  }
 }

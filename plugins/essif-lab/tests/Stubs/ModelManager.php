@@ -1,0 +1,43 @@
+<?php
+
+namespace TNO\EssifLab\Tests\Stubs;
+
+use TNO\EssifLab\Applications\Contracts\Application;
+use TNO\EssifLab\Models\Contracts\Model;
+
+class ModelManager implements \TNO\EssifLab\ModelManagers\Contracts\ModelManager {
+	public function __construct(Application $application) {
+	}
+
+	function insert(Model $model): bool {
+		return true;
+	}
+
+	function delete(Model $model): bool {
+		return true;
+	}
+
+	function update(Model $model): bool {
+		return true;
+	}
+
+	function select(Model $model, array $criteria = []): array {
+		return [];
+	}
+
+	function insertRelation(Model $from, Model $to): bool {
+		return true;
+	}
+
+	function deleteRelation(Model $from, Model $to): bool {
+		return true;
+	}
+
+	function deleteAllRelations(Model $model): bool {
+		return true;
+	}
+
+	function selectAllRelations(Model $model): array {
+		return [];
+	}
+}
