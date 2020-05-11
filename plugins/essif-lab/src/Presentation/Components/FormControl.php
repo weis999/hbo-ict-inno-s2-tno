@@ -105,7 +105,7 @@ class FormControl extends Component {
             preg_match('/name="(.*?)(?=\[)/', self::$renderedIDAttributes, $ID_name);
             if($name[1] === $ID_name[1]){
                 preg_match('/(?<=value=")(.*?)(?=")/', self::$renderedIDAttributes, $ID);
-                $attributes = "class='button-link' onclick='deleteCustomPost(\"".$name[1]."\", "."\"$ID[1]\"".")'";
+                $attributes = " class='button-link' onclick='deleteCustomPost(\"".$name[1]."\", "."\"$ID[1]\"".")'";
             }
             else{
                 // TODO: add custom Exception (There is no ID)
