@@ -27,7 +27,7 @@ class ListForm extends BaseView {
 	}
 
 	private function renderAddNewButton(): string {
-		$url = $this->integration->useUtility(BaseIntegration::GET_ADD_TYPE_LINK, $this->model->getTypeName());
+		$url = $this->integration->getUtility()->call(BaseIntegration::GET_ADD_TYPE_LINK, $this->model->getTypeName());
 		$message = sprintf(self::ADD_NEW, ucfirst($this->model->getSingularName()));
 
 		return '<a href="'.$url.'" class="button btn">'.$message.'</a>';

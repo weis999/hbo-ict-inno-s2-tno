@@ -7,12 +7,9 @@ use TNO\EssifLab\Applications\Contracts\Application;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\ModelManagers\Contracts\ModelManager;
 use TNO\EssifLab\Models\Contracts\Model;
+use TNO\EssifLab\Utilities\Contracts\Utility;
 
 abstract class BaseIntegration implements Integration {
-	public const REGISTER_TYPE = 'register_type';
-
-	public const REGISTER_RELATION = 'register_relation';
-
 	public const GET_ADD_TYPE_LINK = 'get_add_type_link';
 
 	public const GET_EDIT_TYPE_LINK = 'get_edit_type_link';
@@ -21,30 +18,24 @@ abstract class BaseIntegration implements Integration {
 
 	protected $manager;
 
-	protected $utilities = [];
+	protected $utility;
 
-	function __construct(Application $application, ModelManager $manager, array $utilities = []) {
+	function __construct(Application $application, ModelManager $manager, Utility $utility) {
 		$this->application = $application;
 		$this->manager = $manager;
-		$this->utilities = array_merge($this->utilities, $utilities);
-	}
-
-	function useUtility(string $name, ...$parameters) {
-		$utility = is_array($this->utilities) && array_key_exists($name, $this->utilities) ? $this->utilities[$name] : null;
-
-		if (empty($utility)) {
-			return null;
-		}
-
-		if (is_array($utility)) {
-			return call_user_func_array($utility, ...$parameters);
-		}
-
-		return call_user_func($utility, ...$parameters);
+		$this->utility = $utility;
 	}
 
 	function getApplication(): Application {
 		return $this->application;
+	}
+
+	function getModelManager(): ModelManager {
+		return $this->manager;
+	}
+
+	function getUtility(): Utility {
+		return $this->utility;
 	}
 
 	protected static function forAllModels(callable $callback): void {
@@ -70,7 +61,7 @@ abstract class BaseIntegration implements Integration {
 		}
 	}
 
-	protected  static function isConcreteModel(string $class): bool {
+	protected static function isConcreteModel(string $class): bool {
 		return class_exists($class) && in_array(Model::class, class_implements($class));
 	}
 }

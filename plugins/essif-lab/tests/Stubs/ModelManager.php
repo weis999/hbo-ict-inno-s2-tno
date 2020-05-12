@@ -2,13 +2,10 @@
 
 namespace TNO\EssifLab\Tests\Stubs;
 
-use TNO\EssifLab\Applications\Contracts\Application;
+use TNO\EssifLab\ModelManagers\Contracts\BaseModelManager;
 use TNO\EssifLab\Models\Contracts\Model;
 
-class ModelManager implements \TNO\EssifLab\ModelManagers\Contracts\ModelManager {
-	public function __construct(Application $application) {
-	}
-
+class ModelManager extends BaseModelManager {
 	function insert(Model $model): bool {
 		return true;
 	}

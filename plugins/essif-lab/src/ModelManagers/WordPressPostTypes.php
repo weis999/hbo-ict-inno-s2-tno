@@ -2,26 +2,26 @@
 
 namespace TNO\EssifLab\ModelManagers;
 
-use WP_Post;
 use TNO\EssifLab\Applications\Contracts\Application;
 use TNO\EssifLab\Constants;
-use TNO\EssifLab\ModelManagers\Contracts\ModelManager;
+use TNO\EssifLab\ModelManagers\Contracts\BaseModelManager;
 use TNO\EssifLab\ModelManagers\Exceptions\InvalidModelType;
 use TNO\EssifLab\ModelManagers\Exceptions\MissingIdentifier;
 use TNO\EssifLab\Models\Contracts\Model;
+use TNO\EssifLab\Utilities\Contracts\BaseUtility;
+use TNO\EssifLab\Utilities\Contracts\Utility;
+use WP_Post;
 
-class WordPressPostTypes implements ModelManager {
-	private $model;
-
+class WordPressPostTypes extends BaseModelManager {
 	private $relationKey;
 
-	public function __construct(Application $application) {
-		$this->model = $application;
+	public function __construct(Application $application, Utility $utility) {
+		parent::__construct($application, $utility);
 		$this->relationKey = $application->getNamespace().'_'.Constants::MANAGER_TYPE_RELATION_ID_NAME;
 	}
 
 	function insert(Model $model): bool {
-		return wp_insert_post($model->getAttributes()) !== 0;
+		return $this->utility->call(BaseUtility::CREATE_MODEL, $model->getAttributes());
 	}
 
 	function update(Model $model): bool {
@@ -33,9 +33,10 @@ class WordPressPostTypes implements ModelManager {
 	}
 
 	function select(Model $model, array $criteria = []): array {
-		$posts = get_posts(array_merge(Constants::MANAGER_DEFAULT_SELECT_CRITERIA, [
+		$args = array_merge([
 			Constants::MANAGER_TYPE_ID_CRITERIA_NAME => $model->getTypeName(),
-		], $criteria));
+		], $criteria);
+		$posts = $this->utility->call(BaseUtility::GET_MODELS, $args);
 
 		return self::postsToModels($posts);
 	}
@@ -45,7 +46,9 @@ class WordPressPostTypes implements ModelManager {
 		if ($id < 0) {
 			throw new MissingIdentifier($model->getSingularName());
 		}
-		$result = wp_delete_post($id);
+		$result = $this->utility->call(BaseUtility::DELETE_MODEL, $id);
+
+		$this->deleteAllRelations($model);
 
 		return $result !== null || $result !== false;
 	}
@@ -62,7 +65,10 @@ class WordPressPostTypes implements ModelManager {
 			throw new MissingIdentifier($to->getSingularName());
 		}
 
-		return boolval(add_post_meta($fromId, $this->relationKey, $toId));
+		$fromTo = boolval($this->utility->call(BaseUtility::CREATE_MODEL_META, $fromId, $this->relationKey, $toId));
+		$toFrom = boolval($this->utility->call(BaseUtility::CREATE_MODEL_META, $toId, $this->relationKey, $fromId));
+
+		return $fromTo && $toFrom;
 	}
 
 	function deleteRelation(Model $from, Model $to): bool {
@@ -77,7 +83,10 @@ class WordPressPostTypes implements ModelManager {
 			throw new MissingIdentifier($to->getSingularName());
 		}
 
-		return delete_post_meta($fromId, $this->relationKey, $toId);
+		$fromTo = $this->utility->call(BaseUtility::DELETE_MODEL_META, $fromId, $this->relationKey, $toId);
+		$toFrom = $this->utility->call(BaseUtility::DELETE_MODEL_META, $toId, $this->relationKey, $fromId);
+
+		return $fromTo && $toFrom;
 	}
 
 	function deleteAllRelations(Model $model): bool {
@@ -87,7 +96,12 @@ class WordPressPostTypes implements ModelManager {
 			throw new MissingIdentifier($model->getSingularName());
 		}
 
-		return delete_post_meta($id, $this->relationKey);
+		$relationIds = get_post_meta($id, $this->relationKey);
+		foreach ($relationIds as $relationId) {
+			$this->utility->call(BaseUtility::DELETE_MODEL_META, $relationId, $this->relationKey, $id);
+		}
+
+		return $this->utility->call(BaseUtility::DELETE_MODEL_META, $id, $this->relationKey);
 	}
 
 	function selectAllRelations(Model $model): array {
@@ -97,17 +111,18 @@ class WordPressPostTypes implements ModelManager {
 			throw new MissingIdentifier($model->getSingularName());
 		}
 
-		$relationIds = get_post_meta($id, $this->relationKey);
+		$relationIds = $this->utility->call(BaseUtility::GET_MODEL_META, $id, $this->relationKey);
 
-		$posts = get_posts(array_merge(Constants::TYPE_DEFAULT_TYPE_ARGS, [
+		$args = array_merge(Constants::TYPE_DEFAULT_TYPE_ARGS, [
 			'post_type' => 'any',
 			'post__in' => $relationIds,
-		]));
+		]);
+		$posts = $this->utility->call(BaseUtility::GET_MODELS, $args);
 
 		return self::postsToModels($posts);
 	}
 
-	static function getModelIdentifier(Model $model): int {
+	private static function getModelIdentifier(Model $model): int {
 		$attributes = $model->getAttributes();
 		$idKey = Constants::TYPE_INSTANCE_IDENTIFIER_ATTR;
 
@@ -120,19 +135,19 @@ class WordPressPostTypes implements ModelManager {
 		}, $posts);
 	}
 
-	static function modelFactory(array $args): Model {
+	private static function modelFactory(array $args): Model {
 		$type = array_key_exists(Constants::MANAGER_TYPE_ID_CRITERIA_NAME, $args) ? $args[Constants::MANAGER_TYPE_ID_CRITERIA_NAME] : '';
 
 		$className = implode('', array_map('ucfirst', explode(' ', str_replace('-', ' ', $type))));
-		$FQCN = Constants::TYPE_NAMESPACE.'\\'.$className;
+		$FQN = Constants::TYPE_NAMESPACE.'\\'.$className;
 
-		if (empty($type) || ! class_exists($FQCN) || ! in_array(Model::class, class_implements($FQCN))) {
-			throw new InvalidModelType($FQCN);
+		if (empty($type) || ! class_exists($FQN) || ! in_array(Model::class, class_implements($FQN))) {
+			throw new InvalidModelType($FQN);
 		}
 
 		$attrs = self::extractAttributesFromArgs($args);
 
-		return new $FQCN($attrs);
+		return new $FQN($attrs);
 	}
 
 	private static function extractAttributesFromArgs(array $args): array {

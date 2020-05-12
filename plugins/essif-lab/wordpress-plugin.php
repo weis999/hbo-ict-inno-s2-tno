@@ -15,6 +15,8 @@ require plugin_dir_path(__FILE__).'vendor/autoload.php';
 
 use TNO\EssifLab\Applications\Contracts\Application;
 use TNO\EssifLab\Applications\Plugin;
+use TNO\EssifLab\Utilities\Contracts\Utility;
+use TNO\EssifLab\Utilities\WordPress as WP;
 use TNO\EssifLab\ModelManagers\Contracts\ModelManager;
 use TNO\EssifLab\ModelManagers\WordPressPostTypes;
 use TNO\EssifLab\Integrations\Contracts\Integration;
@@ -26,15 +28,13 @@ if (! function_exists('get_plugin_data')) {
 }
 
 $getApplication = function (): Application {
-	$name = function (): string {
-		$pluginData = get_plugin_data(__FILE__, false, false);
+	$pluginData = get_plugin_data(__FILE__, false, false);
 
+	$name = function () use ($pluginData): string {
 		return array_key_exists('Name', $pluginData) ? $pluginData['Name'] : 'App';
 	};
 
-	$namespace = function (): string {
-		$pluginData = get_plugin_data(__FILE__, false, false);
-
+	$namespace = function () use ($pluginData): string {
 		return array_key_exists('TextDomain', $pluginData) ? $pluginData['TextDomain'] : 'MyApp';
 	};
 
@@ -45,12 +45,16 @@ $getApplication = function (): Application {
 	return new Plugin($name(), $namespace(), $appDir());
 };
 
-$getModelManager = function (Application $application): ModelManager {
-	return new WordPressPostTypes($application);
+$getUtilities = function (): Utility {
+	return new WP();
 };
 
-$getIntegration = function (Application $application) use ($getModelManager): Integration {
-	return new WordPress($application, $getModelManager($application));
+$getModelManager = function (Application $application) use ($getUtilities): ModelManager {
+	return new WordPressPostTypes($application, $getUtilities());
+};
+
+$getIntegration = function (Application $application) use ($getModelManager, $getUtilities): Integration {
+	return new WordPress($application, $getModelManager($application), $getUtilities());
 };
 
 // Install the integration
