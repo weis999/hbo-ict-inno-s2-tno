@@ -10,10 +10,6 @@ use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\Utility;
 
 abstract class BaseIntegration implements Integration {
-	public const GET_ADD_TYPE_LINK = 'get_add_type_link';
-
-	public const GET_EDIT_TYPE_LINK = 'get_edit_type_link';
-
 	protected $application;
 
 	protected $manager;

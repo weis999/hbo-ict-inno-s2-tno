@@ -3,6 +3,7 @@
 namespace TNO\EssifLab\Views;
 
 use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
+use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Views\Contracts\BaseView;
 
 class ListForm extends BaseView {
@@ -27,7 +28,7 @@ class ListForm extends BaseView {
 	}
 
 	private function renderAddNewButton(): string {
-		$url = $this->integration->getUtility()->call(BaseIntegration::GET_ADD_TYPE_LINK, $this->model->getTypeName());
+		$url = $this->integration->getUtility()->call(BaseUtility::GET_CREATE_MODEL_LINK, $this->model->getTypeName());
 		$message = sprintf(self::ADD_NEW, ucfirst($this->model->getSingularName()));
 
 		return '<a href="'.$url.'" class="button btn">'.$message.'</a>';
