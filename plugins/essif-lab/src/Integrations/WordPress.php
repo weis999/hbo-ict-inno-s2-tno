@@ -18,7 +18,7 @@ class WordPress extends BaseIntegration {
 
 	function install(): void {
 		$this->utility->call(WP::ADD_ACTION, 'admin_menu', [$this, 'registerAdminMenu']);
-		$this->utility->call(WP::ADD_ACTION, 'init', [$this, 'registerPostTypes']);
+		$this->utility->call(WP::ADD_ACTION, 'init', [$this, 'registerModelTypes']);
 		$this->registerMetaBoxes();
 	}
 
@@ -30,7 +30,7 @@ class WordPress extends BaseIntegration {
 		$this->utility->call(WP::ADD_NAV_ITEM, $title, $capability, $slug, $icon);
 	}
 
-	function registerPostTypes(): void {
+	function registerModelTypes(): void {
 		BaseIntegration::forAllModels(function (Model $instance) {
 			$this->registerModelType($instance);
 		});

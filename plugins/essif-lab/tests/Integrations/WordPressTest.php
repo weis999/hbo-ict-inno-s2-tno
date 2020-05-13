@@ -106,11 +106,9 @@ class WordPressTest extends TestCase {
 	function registers_menu_item_when_installing() {
 		$this->subject->install();
 
-		$page_title = $this->application->getName();
-		$menu_title = $page_title;
+		$title = $this->application->getName();
 		$capability = Constants::ADMIN_MENU_CAPABILITY;
 		$menu_slug = $this->application->getNamespace();
-		$callback = null;
 		$icon_url = Constants::ADMIN_MENU_ICON_URL;
 		
 		$history = $this->utility->getHistoryByFuncName(WP::ADD_NAV_ITEM);
@@ -120,11 +118,9 @@ class WordPressTest extends TestCase {
 		$entry = current($history);
 		$params = $entry->getParams();
 		
-		$this->assertEquals($page_title, $params[0]);
-		$this->assertEquals($menu_title, $params[1]);
-		$this->assertEquals($capability, $params[2]);
-		$this->assertEquals($menu_slug, $params[3]);
-		$this->assertEquals($callback, $params[4]);
-		$this->assertEquals($icon_url, $params[5]);
+		$this->assertEquals($title, $params[0]);
+		$this->assertEquals($capability, $params[1]);
+		$this->assertEquals($menu_slug, $params[2]);
+		$this->assertEquals($icon_url, $params[3]);
 	}
 }
