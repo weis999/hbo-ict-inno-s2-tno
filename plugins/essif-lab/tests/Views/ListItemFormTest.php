@@ -5,6 +5,7 @@ namespace TNO\EssifLab\Tests\Views;
 use TNO\EssifLab\Tests\Stubs\ItemDisplayable;
 use TNO\EssifLab\Tests\Stubs\ItemNonDisplayable;
 use TNO\EssifLab\Tests\TestCase;
+use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Views\ListItemForm;
 
 class ListItemFormTest extends TestCase {
@@ -79,10 +80,17 @@ class ListItemFormTest extends TestCase {
 
 		$expected = [
 			'/.*<button.*value="hello".*>'.ListItemForm::REMOVE.'<\/button>.*/',
-			'/.*<a.*href=".*hello.*".*>'.ListItemForm::EDIT.'<\/a>.*/'
+			'/.*<a.*>'.ListItemForm::EDIT.'<\/a>.*/'
 		];
 
 		$this->assertRegExp($expected[0], $actual);
 		$this->assertRegExp($expected[1], $actual);
+
+		$history = $this->utility->getHistoryByFuncName(BaseUtility::GET_EDIT_MODEL_LINK);
+		$this->assertCount(1, $history);
+
+		$entry = current($history);
+		$params = $entry->getParams();
+		$this->assertEquals('hello', $params[0]);
 	}
 }
