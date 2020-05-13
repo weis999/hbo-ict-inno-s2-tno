@@ -7,6 +7,7 @@ use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\WordPress as WP;
+use TNO\EssifLab\Views\Items\Displayable;
 use TNO\EssifLab\Views\Items\MultiDimensional;
 use TNO\EssifLab\Views\TypeList;
 
@@ -64,9 +65,15 @@ class WordPress extends BaseIntegration {
 	}
 
 	function renderModelRelation(Model $parent, Model $related): string {
+	    $relatedModelInstances = $this->manager->select($related);
+	    $formItems = array_map(function(Model $relatedModelInstance) {
+	        $attr = $relatedModelInstance->getAttributes();
+	        return new Displayable($attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR], $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
+        }, $relatedModelInstances);
+        $listItems = [];
 		$values = [
-			new MultiDimensional([], TypeList::FORM_ITEMS),
-			new MultiDimensional([], TypeList::LIST_ITEMS),
+			new MultiDimensional($formItems, TypeList::FORM_ITEMS),
+			new MultiDimensional($listItems, TypeList::LIST_ITEMS),
 		];
 
 		return $this->renderer->renderListAndFormView($this, $related, $values);
