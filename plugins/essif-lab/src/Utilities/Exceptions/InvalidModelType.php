@@ -1,6 +1,6 @@
 <?php
 
-namespace TNO\EssifLab\ModelManagers\Exceptions;
+namespace TNO\EssifLab\Utilities\Exceptions;
 
 use Throwable;
 use Exception;

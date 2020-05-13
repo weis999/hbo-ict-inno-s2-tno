@@ -2,26 +2,39 @@
 
 namespace TNO\EssifLab\Tests\Stubs;
 
+use TNO\EssifLab\Constants;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\WordPress;
 
 class Utility extends BaseUtility {
 	private $history = [];
 
-	protected $exceptionalFunctions = [
+	protected $callbackTriggeringFunctions = [
 		WordPress::ADD_ACTION => [self::class, 'addHook'],
 		WordPress::ADD_FILTER => [self::class, 'addHook'],
 		WordPress::ADD_META_BOX => [self::class, 'addMetaBox'],
 	];
 
+	protected $valueReturningFunctions = [
+		BaseUtility::GET_CURRENT_MODEL => [self::class, 'getCurrentModel'],
+		BaseUtility::GET_MODEL_META => [self::class, 'getModelMeta'],
+		BaseUtility::GET_MODELS => [self::class, 'getModels']
+	];
+
 	function call(string $name, ...$parameters) {
-		if (array_key_exists($name, $this->exceptionalFunctions)) {
-			$callback = $this->exceptionalFunctions[$name];
+		$wasCalled = count($this->getHistoryByFuncName($name));
+		$this->history[] = new History($name, $parameters, $wasCalled + 1);
+
+		if (array_key_exists($name, $this->callbackTriggeringFunctions)) {
+			$callback = $this->callbackTriggeringFunctions[$name];
 			$callback(...$parameters);
 		}
 
-		$wasCalled = count($this->getHistoryByFuncName($name));
-		$this->history[] = new History($name, $parameters, $wasCalled + 1);
+		if (array_key_exists($name, $this->valueReturningFunctions)) {
+			$callback = $this->valueReturningFunctions[$name];
+			return $callback(...$parameters);
+		}
+		return null;
 	}
 
 	/**
@@ -41,5 +54,26 @@ class Utility extends BaseUtility {
 
 	static function addMetaBox($id, $title, $callback, $screen) {
 		$callback();
+	}
+
+	static function getCurrentModel(): array {
+		return [
+			Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
+			Constants::MANAGER_TYPE_ID_CRITERIA_NAME => 'model'
+		];
+	}
+
+	static function getModelMeta(): array {
+		return [1];
+	}
+
+	static function getModels(): array {
+		return [
+			new Model([
+				Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
+				Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
+				Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
+			])
+		];
 	}
 }
