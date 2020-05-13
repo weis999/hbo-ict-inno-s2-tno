@@ -32,6 +32,7 @@ abstract class Constants {
 	const TYPE_DEFAULT_ATTRIBUTE_NAMES = [
 		self::TYPE_INSTANCE_IDENTIFIER_ATTR,
 		self::TYPE_INSTANCE_TITLE_ATTR,
+        self::TYPE_INSTANCE_DESCRIPTION_ATTR,
 	];
 
 	const TYPE_DEFAULT_FIELDS = [

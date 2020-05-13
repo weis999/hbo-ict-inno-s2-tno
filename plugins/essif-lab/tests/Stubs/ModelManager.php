@@ -43,6 +43,12 @@ class ModelManager extends BaseModelManager {
 	}
 
 	function selectAllRelations(Model $model): array {
-		return [];
+        return [
+            new ConcreteModel([
+                Constants::TYPE_INSTANCE_IDENTIFIER_ATTR => 1,
+                Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
+                Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',
+            ])
+        ];
 	}
 }

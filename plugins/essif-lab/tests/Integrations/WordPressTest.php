@@ -125,21 +125,41 @@ class WordPressTest extends TestCase {
 	}
 
 	/** @test */
-	function can_get_form_items_from_each_model_relation() {
-		$this->subject->install();
+    function can_get_form_items_from_each_model_relation() {
+        $this->subject->install();
 
-		$renderWasCalled = $this->renderer->isRenderListAndFormViewCalled();
-		$this->assertTrue($renderWasCalled);
+        $renderWasCalled = $this->renderer->isRenderListAndFormViewCalled();
+        $this->assertTrue($renderWasCalled);
 
-		$attrs = $this->renderer->getAttrsParamWhereRenderListAndFormViewWasCalledWith();
+        $attrs = $this->renderer->getAttrsParamWhereRenderListAndFormViewWasCalledWith();
 
-		$this->assertNotEmpty($attrs);
-		$this->assertNotEmpty($attrs[0]->getValue());
+        $this->assertNotEmpty($attrs);
+        $this->assertNotEmpty($attrs[0]->getValue());
 
-		// ID of the model
-		$this->assertEquals(1, $attrs[0]->getValue()[0]->getValue());
-		// Title of the model
-		$this->assertEquals('hello', $attrs[0]->getValue()[0]->getLabel());
+        // ID of the model
+        $this->assertEquals(1, $attrs[0]->getValue()[0]->getValue());
+        // Title of the model
+        $this->assertEquals('hello', $attrs[0]->getValue()[0]->getLabel());
+    }
 
-	}
+    /** @test */
+    function can_get_list_items_from_each_model_relation() {
+        $this->subject->install();
+
+        $renderWasCalled = $this->renderer->isRenderListAndFormViewCalled();
+        $this->assertTrue($renderWasCalled);
+
+        $attrs = $this->renderer->getAttrsParamWhereRenderListAndFormViewWasCalledWith();
+
+        $this->assertNotEmpty($attrs);
+        $this->assertNotEmpty($attrs[1]->getValue());
+        $this->assertNotEmpty($attrs[1]->getValue()[0]->getValue());
+
+        //ID of the model
+        $this->assertEquals(1, $attrs[1]->getValue()[0]->getValue()[0]->getValue());
+        //Title of the model
+        $this->assertEquals('hello', $attrs[1]->getValue()[0]->getValue()[0]->getLabel());
+        //Description of the model
+        $this->assertEquals('world', $attrs[1]->getValue()[0]->getValue()[1]->getLabel());
+    }
 }

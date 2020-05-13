@@ -65,12 +65,8 @@ class WordPress extends BaseIntegration {
 	}
 
 	function renderModelRelation(Model $parent, Model $related): string {
-	    $relatedModelInstances = $this->manager->select($related);
-	    $formItems = array_map(function(Model $relatedModelInstance) {
-	        $attr = $relatedModelInstance->getAttributes();
-	        return new Displayable($attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR], $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
-        }, $relatedModelInstances);
-        $listItems = [];
+        $formItems = $this->generateFormItems($related);
+        $listItems = $this->generateListItems($parent);
 		$values = [
 			new MultiDimensional($formItems, TypeList::FORM_ITEMS),
 			new MultiDimensional($listItems, TypeList::LIST_ITEMS),
@@ -134,4 +130,32 @@ class WordPress extends BaseIntegration {
 
 		return array_merge($default, $args);
 	}
+
+    /**
+     * @param Model $related
+     * @return array
+     */
+    public function generateFormItems(Model $related): array
+    {
+        return array_map(function (Model $model) {
+            $attr = $model->getAttributes();
+            $ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+            return new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
+        }, $this->manager->select($related));
+    }
+
+    /**
+     * @param Model $parent
+     * @return array
+     */
+    public function generateListItems(Model $parent): array
+    {
+        return array_map(function (Model $model) {
+            $attr = $model->getAttributes();
+            $ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+            $title = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
+            $description = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR]);
+            return new MultiDimensional([$title, $description]);
+        }, $this->manager->selectAllRelations($parent));
+    }
 }
