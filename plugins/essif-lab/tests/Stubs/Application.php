@@ -2,16 +2,7 @@
 
 namespace TNO\EssifLab\Tests\Stubs;
 
-class Application implements \TNO\EssifLab\Applications\Contracts\Application {
-	function getName(): string {
-		return 'name';
-	}
+use TNO\EssifLab\Applications\Contracts\BaseApplication;
 
-	function getNamespace(): string {
-		return 'namespace';
-	}
-
-	function getAppDir(): string {
-		return 'appDir';
-	}
+class Application extends BaseApplication {
 }

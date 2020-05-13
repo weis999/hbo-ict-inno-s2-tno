@@ -5,46 +5,29 @@ namespace TNO\EssifLab\Integrations;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\Models\Contracts\Model;
+use TNO\EssifLab\Utilities\Contracts\BaseUtility;
+use TNO\EssifLab\Utilities\WordPress as WP;
 use TNO\EssifLab\Views\Items\MultiDimensional;
 use TNO\EssifLab\Views\TypeList;
 
 class WordPress extends BaseIntegration {
-	const ADD_ACTION = 'add_action';
-
-	const ADD_MENU_PAGE = 'add_menu_page';
-
 	const DEFAULT_TYPE_ARGS = [
 		'public' => false,
 		'show_ui' => true,
 	];
 
-	const ADMIN_MENU_CAPABILITY = 'manage_options';
-
-	const ADMIN_MENU_ICON_URL = 'dashicons-lock';
-
-	protected $utilities = [
-		BaseIntegration::REGISTER_TYPE => 'register_post_type',
-		BaseIntegration::REGISTER_RELATION => 'add_meta_box',
-		BaseIntegration::GET_ADD_TYPE_LINK => self::class.'::getAddTypeLink',
-		BaseIntegration::GET_EDIT_TYPE_LINK => self::class.'::getEditTypeLink',
-		self::ADD_ACTION => self::ADD_ACTION,
-		self::ADD_MENU_PAGE => self::ADD_MENU_PAGE,
-	];
-
 	function install(): void {
-		$this->useUtility(self::ADD_ACTION, 'admin_menu', [$this, 'registerAdminMenu']);
-		$this->useUtility(self::ADD_ACTION, 'init', [$this, 'registerPostTypes']);
+		$this->utility->call(WP::ADD_ACTION, 'admin_menu', [$this, 'registerAdminMenu']);
+		$this->utility->call(WP::ADD_ACTION, 'init', [$this, 'registerPostTypes']);
 		$this->registerMetaBoxes();
 	}
 
 	function registerAdminMenu(): void {
-		$page_title = $this->application->getName();
-		$menu_title = $page_title;
-		$capability = self::ADMIN_MENU_CAPABILITY;
-		$menu_slug = $this->application->getNamespace();
-		$icon_url = self::ADMIN_MENU_ICON_URL;
-		$callback = null;
-		$this->useUtility(self::ADD_MENU_PAGE, $page_title, $menu_title, $capability, $menu_slug, $callback, $icon_url);
+		$title = $this->application->getName();
+		$capability = Constants::ADMIN_MENU_CAPABILITY;
+		$slug = $this->application->getNamespace();
+		$icon = Constants::ADMIN_MENU_ICON_URL;
+		$this->utility->call(WP::ADD_NAV_ITEM, $title, $capability, $slug, $icon);
 	}
 
 	function registerPostTypes(): void {
@@ -55,13 +38,13 @@ class WordPress extends BaseIntegration {
 
 	function registerModelType(Model $model): void {
 		$args = $this->parseTypeArgs($model);
-		$this->useUtility(BaseIntegration::REGISTER_TYPE, $model->getTypeName(), $args);
+		$this->utility->call(BaseUtility::CREATE_MODEL_TYPE, $model->getTypeName(), $args);
 	}
 
 	function registerMetaBoxes(): void {
 		BaseIntegration::forAllModels(function (Model $model) {
 			$hook = 'add_meta_boxes_'.$model->getTypeName();
-			$this->useUtility(self::ADD_ACTION, $hook, function () use ($model) {
+			$this->utility->call(WP::ADD_ACTION, $hook, function () use ($model) {
 				$this->registerModelRelations($model);
 			});
 		});
@@ -76,8 +59,7 @@ class WordPress extends BaseIntegration {
 				print $this->renderModelRelation($model, $related);
 			};
 			$screen = $model->getTypeName();
-			$context = 'normal';
-			$this->useUtility(BaseIntegration::REGISTER_RELATION, $id, $title, $callback, $screen, $context);
+			$this->utility->call(WP::ADD_META_BOX, $id, $title, $callback, $screen);
 		});
 	}
 
@@ -92,10 +74,6 @@ class WordPress extends BaseIntegration {
 
 	static function getAddTypeLink(string $postType) {
 		return get_admin_url(null, 'edit.php?post_type='.$postType);
-	}
-
-	static function getEditTypeLink(int $id) {
-		return get_edit_post_link($id);
 	}
 
 	static function generateLabels(Model $model): array {

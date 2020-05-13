@@ -30,7 +30,7 @@ class ListItemForm extends BaseView {
 	}
 
 	private function renderEdit(Item $item) {
-		$url = $this->integration->useUtility(BaseIntegration::GET_EDIT_TYPE_LINK, $item->getValue());
+		$url = $this->integration->getUtility()->call(BaseIntegration::GET_EDIT_TYPE_LINK, $item->getValue());
 		$title = self::EDIT.' '.$item->getLabel();
 
 		return '<a href="'.$url.'" title="'.$title.'" class="button-link">'.self::EDIT.'</a>';

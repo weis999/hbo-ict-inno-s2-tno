@@ -29,10 +29,6 @@ abstract class Constants {
 
 	const MANAGER_TYPE_RELATION_ID_NAME = 'relation';
 
-	const MANAGER_DEFAULT_SELECT_CRITERIA = [
-		'numberposts' => -1,
-	];
-
 	const TYPE_DEFAULT_ATTRIBUTE_NAMES = [
 		self::TYPE_INSTANCE_IDENTIFIER_ATTR,
 		self::TYPE_INSTANCE_TITLE_ATTR,
@@ -50,4 +46,8 @@ abstract class Constants {
 		self::TYPE_INSTANCE_TITLE_ATTR,
 		self::TYPE_INSTANCE_DESCRIPTION_ATTR,
 	];
+
+	public const ADMIN_MENU_CAPABILITY = 'manage_options';
+
+	public const ADMIN_MENU_ICON_URL = 'dashicons-lock';
 }

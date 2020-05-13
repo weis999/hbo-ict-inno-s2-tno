@@ -3,46 +3,29 @@
 namespace TNO\EssifLab\Tests\Integrations;
 
 use Closure;
-use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
+use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\WordPress;
 use TNO\EssifLab\Tests\TestCase;
+use TNO\EssifLab\Utilities\Contracts\BaseUtility;
+use TNO\EssifLab\Utilities\WordPress as WP;
 
 class WordPressTest extends TestCase {
 	protected $subject;
 
 	protected function setUp(): void {
 		parent::setUp();
-		$utilities = [
-			BaseIntegration::REGISTER_TYPE => function ($x, $y = []) {
-				$this->callStubFunc(BaseIntegration::REGISTER_TYPE, $x, $y);
-			},
-			BaseIntegration::REGISTER_RELATION => function ($id, $title, $callback, $screen) {
-				$this->callStubFunc(BaseIntegration::REGISTER_RELATION, $id, $title, $callback, $screen);
-			},
-			WordPress::ADD_ACTION => function ($x, $y) {
-				call_user_func_array($y, []);
-				$this->callStubFunc(WordPress::ADD_ACTION, $x, $y);
-			},
-			WordPress::ADD_MENU_PAGE => function (
-				$page_title,
-				$menu_title,
-				$capability,
-				$menu_slug,
-				$callback,
-				$icon_url
-			) {
-				$this->callStubFunc(WordPress::ADD_MENU_PAGE, $page_title, $menu_title, $capability, $menu_slug, $callback, $icon_url);
-			},
-		];
-		$this->subject = new WordPress($this->application, $this->manager, $utilities);
+		$this->subject = new WordPress($this->application, $this->manager, $this->utility);
 	}
 
 	/** @test */
 	function registers_model_type_as_custom_post_type() {
 		$this->subject->registerModelType($this->model);
 
-		$this->assertArrayHasKey(BaseIntegration::REGISTER_TYPE, $this->was_called);
-		$this->assertEquals(1, $this->was_called[BaseIntegration::REGISTER_TYPE][self::TIMES_CALLED]);
+		$history = $this->utility->getHistoryByFuncName(BaseUtility::CREATE_MODEL_TYPE);
+		$this->assertNotEmpty($history);
+		$this->assertCount(1, $history);
+		
+		$entry = current($history);
 		$this->assertEquals([
 			$this->model->getTypeName(),
 			array_merge(WordPress::DEFAULT_TYPE_ARGS, [
@@ -50,7 +33,7 @@ class WordPressTest extends TestCase {
 				'supports' => $this->model->getFields(),
 				'labels' => WordPress::generateLabels($this->model),
 			]),
-		], $this->was_called[BaseIntegration::REGISTER_TYPE][self::LAST_CALL_WITH]);
+		], $entry->getParams());
 	}
 
 	/** @test */
@@ -64,22 +47,28 @@ class WordPressTest extends TestCase {
 			return $x instanceof Closure;
 		};
 
-		$this->assertArrayHasKey(BaseIntegration::REGISTER_RELATION, $this->was_called);
+		$history = $this->utility->getHistoryByFuncName(WP::ADD_META_BOX);
+		$this->assertNotEmpty($history);
+		$this->assertCount(1, $history);
+		
+		$entry = current($history);
+		$params = $entry->getParams();
 		// $id parameter is equal to:
-		$this->assertEquals($id, $this->was_called[BaseIntegration::REGISTER_RELATION][self::LAST_CALL_WITH][0]);
+		$this->assertEquals($id, $params[0]);
 		// $title parameter is equal to:
-		$this->assertEquals($title, $this->was_called[BaseIntegration::REGISTER_RELATION][self::LAST_CALL_WITH][1]);
+		$this->assertEquals($title, $params[1]);
 		// $callback is a closure:
-		$this->assertTrue($is_closure($this->was_called[BaseIntegration::REGISTER_RELATION][self::LAST_CALL_WITH][2]));
+		$this->assertTrue($is_closure($params[2]));
 		// $screen parameter is equal to:
-		$this->assertEquals($post_type, $this->was_called[BaseIntegration::REGISTER_RELATION][self::LAST_CALL_WITH][3]);
+		$this->assertEquals($post_type, $params[3]);
 	}
 
 	/** @test */
 	function registers_models_when_running_install() {
 		$this->subject->install();
 
-		$this->assertArrayHasKey(BaseIntegration::REGISTER_TYPE, $this->was_called);
+		$history = $this->utility->getHistoryByFuncName(BaseUtility::CREATE_MODEL_TYPE);
+		$this->assertNotEmpty($history);
 		/**
 		 * Types
 		 * 1. Credential
@@ -90,14 +79,14 @@ class WordPressTest extends TestCase {
 		 * 6. Target
 		 * 7. ValidationPolicy
 		 */
-		$this->assertEquals(7, $this->was_called[BaseIntegration::REGISTER_TYPE][self::TIMES_CALLED]);
+		$this->assertCount(7, $history);
 	}
 
 	/** @test */
 	function registers_model_relations_when_running_install() {
 		$this->subject->install();
 
-		$this->assertArrayHasKey(BaseIntegration::REGISTER_RELATION, $this->was_called);
+		$history = $this->utility->getHistoryByFuncName(WP::ADD_META_BOX);
 		/**
 		 * Relations
 		 * - Credential:
@@ -110,7 +99,7 @@ class WordPressTest extends TestCase {
 		 *   5. Hook
 		 *   6. Credential
 		 */
-		$this->assertEquals(6, $this->was_called[BaseIntegration::REGISTER_RELATION][self::TIMES_CALLED]);
+		$this->assertCount(6, $history);
 	}
 
 	/** @test */
@@ -119,18 +108,23 @@ class WordPressTest extends TestCase {
 
 		$page_title = $this->application->getName();
 		$menu_title = $page_title;
-		$capability = WordPress::ADMIN_MENU_CAPABILITY;
+		$capability = Constants::ADMIN_MENU_CAPABILITY;
 		$menu_slug = $this->application->getNamespace();
 		$callback = null;
-		$icon_url = WordPress::ADMIN_MENU_ICON_URL;
-
-		$this->assertArrayHasKey(WordPress::ADD_MENU_PAGE, $this->was_called);
-		$this->assertEquals(1, $this->was_called[WordPress::ADD_MENU_PAGE][self::TIMES_CALLED]);
-		$this->assertEquals($page_title, $this->was_called[WordPress::ADD_MENU_PAGE][self::LAST_CALL_WITH][0]);
-		$this->assertEquals($menu_title, $this->was_called[WordPress::ADD_MENU_PAGE][self::LAST_CALL_WITH][1]);
-		$this->assertEquals($capability, $this->was_called[WordPress::ADD_MENU_PAGE][self::LAST_CALL_WITH][2]);
-		$this->assertEquals($menu_slug, $this->was_called[WordPress::ADD_MENU_PAGE][self::LAST_CALL_WITH][3]);
-		$this->assertEquals($callback, $this->was_called[WordPress::ADD_MENU_PAGE][self::LAST_CALL_WITH][4]);
-		$this->assertEquals($icon_url, $this->was_called[WordPress::ADD_MENU_PAGE][self::LAST_CALL_WITH][5]);
+		$icon_url = Constants::ADMIN_MENU_ICON_URL;
+		
+		$history = $this->utility->getHistoryByFuncName(WP::ADD_NAV_ITEM);
+		$this->assertNotEmpty($history);
+		$this->assertCount(1, $history);
+		
+		$entry = current($history);
+		$params = $entry->getParams();
+		
+		$this->assertEquals($page_title, $params[0]);
+		$this->assertEquals($menu_title, $params[1]);
+		$this->assertEquals($capability, $params[2]);
+		$this->assertEquals($menu_slug, $params[3]);
+		$this->assertEquals($callback, $params[4]);
+		$this->assertEquals($icon_url, $params[5]);
 	}
 }
