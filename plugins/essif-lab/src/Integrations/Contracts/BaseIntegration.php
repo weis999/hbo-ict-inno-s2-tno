@@ -6,6 +6,7 @@ use HaydenPierce\ClassFinder\ClassFinder;
 use TNO\EssifLab\Applications\Contracts\Application;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\ModelManagers\Contracts\ModelManager;
+use TNO\EssifLab\ModelRenderers\Contracts\ModelRenderer;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\Utility;
 
@@ -14,11 +15,14 @@ abstract class BaseIntegration implements Integration {
 
 	protected $manager;
 
+	protected $renderer;
+
 	protected $utility;
 
-	function __construct(Application $application, ModelManager $manager, Utility $utility) {
+	function __construct(Application $application, ModelManager $manager, ModelRenderer $renderer, Utility $utility) {
 		$this->application = $application;
 		$this->manager = $manager;
+		$this->renderer = $renderer;
 		$this->utility = $utility;
 	}
 

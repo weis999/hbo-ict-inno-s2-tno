@@ -11,6 +11,7 @@ class Utility extends BaseUtility {
 	protected $exceptionalFunctions = [
 		WordPress::ADD_ACTION => [self::class, 'addHook'],
 		WordPress::ADD_FILTER => [self::class, 'addHook'],
+		WordPress::ADD_META_BOX => [self::class, 'addMetaBox'],
 	];
 
 	function call(string $name, ...$parameters) {
@@ -36,5 +37,9 @@ class Utility extends BaseUtility {
 	static function addHook(string $hook, callable $callback, int $priority = 10, int $accepted_args = 1): void {
 		$params = range(0, $accepted_args);
 		$callback(...$params);
+	}
+
+	static function addMetaBox($id, $title, $callback, $screen) {
+		$callback();
 	}
 }

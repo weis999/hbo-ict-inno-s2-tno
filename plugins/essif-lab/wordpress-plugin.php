@@ -15,12 +15,14 @@ require plugin_dir_path(__FILE__).'vendor/autoload.php';
 
 use TNO\EssifLab\Applications\Contracts\Application;
 use TNO\EssifLab\Applications\Plugin;
-use TNO\EssifLab\Utilities\Contracts\Utility;
-use TNO\EssifLab\Utilities\WordPress as WP;
-use TNO\EssifLab\ModelManagers\Contracts\ModelManager;
-use TNO\EssifLab\ModelManagers\WordPressPostTypes;
 use TNO\EssifLab\Integrations\Contracts\Integration;
 use TNO\EssifLab\Integrations\WordPress;
+use TNO\EssifLab\ModelManagers\Contracts\ModelManager;
+use TNO\EssifLab\ModelManagers\WordPressPostTypes;
+use TNO\EssifLab\ModelRenderers\Contracts\ModelRenderer;
+use TNO\EssifLab\ModelRenderers\WordPressMetaBox;
+use TNO\EssifLab\Utilities\Contracts\Utility;
+use TNO\EssifLab\Utilities\WordPress as WP;
 
 // Make sure the WP Plugin API is loaded
 if (! function_exists('get_plugin_data')) {
@@ -45,16 +47,24 @@ $getApplication = function (): Application {
 	return new Plugin($name(), $namespace(), $appDir());
 };
 
-$getUtilities = function (): Utility {
+$getUtility = function (): Utility {
 	return new WP();
 };
 
-$getModelManager = function (Application $application) use ($getUtilities): ModelManager {
-	return new WordPressPostTypes($application, $getUtilities());
+$getModelRenderer = function (): ModelRenderer {
+	return new WordPressMetaBox();
 };
 
-$getIntegration = function (Application $application) use ($getModelManager, $getUtilities): Integration {
-	return new WordPress($application, $getModelManager($application), $getUtilities());
+$getModelManager = function (Application $application) use ($getUtility): ModelManager {
+	return new WordPressPostTypes($application, $getUtility());
+};
+
+$getIntegration = function (Application $application) use (
+	$getModelManager,
+	$getModelRenderer,
+	$getUtility
+): Integration {
+	return new WordPress($application, $getModelManager($application), $getModelRenderer(), $getUtility());
 };
 
 // Install the integration

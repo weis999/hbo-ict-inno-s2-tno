@@ -69,7 +69,7 @@ class WordPress extends BaseIntegration {
 			new MultiDimensional([], TypeList::LIST_ITEMS),
 		];
 
-		return (new TypeList($this, $related, $values))->render();
+		return $this->renderer->renderListAndFormView($this, $related, $values);
 	}
 
 	static function getAddTypeLink(string $postType) {

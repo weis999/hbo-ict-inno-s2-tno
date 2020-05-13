@@ -14,7 +14,7 @@ class WordPressTest extends TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->subject = new WordPress($this->application, $this->manager, $this->utility);
+		$this->subject = new WordPress($this->application, $this->manager, $this->renderer, $this->utility);
 	}
 
 	/** @test */
@@ -122,5 +122,24 @@ class WordPressTest extends TestCase {
 		$this->assertEquals($capability, $params[1]);
 		$this->assertEquals($menu_slug, $params[2]);
 		$this->assertEquals($icon_url, $params[3]);
+	}
+
+	/** @test */
+	function can_get_form_items_from_each_model_relation() {
+		$this->subject->install();
+
+		$renderWasCalled = $this->renderer->isRenderListAndFormViewCalled();
+		$this->assertTrue($renderWasCalled);
+
+		$attrs = $this->renderer->getAttrsParamWhereRenderListAndFormViewWasCalledWith();
+
+		$this->assertNotEmpty($attrs);
+		$this->assertNotEmpty($attrs[0]->getValue());
+
+		// ID of the model
+		$this->assertEquals(1, $attrs[0]->getValue()[0]->getValue());
+		// Title of the model
+		$this->assertEquals('hello', $attrs[0]->getValue()[0]->getLabel());
+
 	}
 }

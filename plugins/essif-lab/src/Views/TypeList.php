@@ -8,7 +8,7 @@ use TNO\EssifLab\Views\Contracts\BaseView;
 use TNO\EssifLab\Views\Contracts\View;
 use TNO\EssifLab\Views\Items\Contracts\BaseItem;
 
-class TypeList extends BaseView {
+class TypeList extends BaseView  {
 	const FORM_ITEMS = 'form_items';
 
 	const LIST_ITEMS = 'list_items';

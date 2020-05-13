@@ -4,17 +4,13 @@ namespace TNO\EssifLab\Integrations\Contracts;
 
 use TNO\EssifLab\Applications\Contracts\Application;
 use TNO\EssifLab\ModelManagers\Contracts\ModelManager;
-use TNO\EssifLab\Models\Contracts\Model;
+use TNO\EssifLab\ModelRenderers\Contracts\ModelRenderer;
 use TNO\EssifLab\Utilities\Contracts\Utility;
 
 interface Integration {
-	function __construct(Application $application, ModelManager $manager, Utility $utility);
+	function __construct(Application $application, ModelManager $manager,ModelRenderer $renderer, Utility $utility);
 
 	function install(): void;
-
-	function registerModelType(Model $model): void;
-
-	function registerModelRelations(Model $model): void;
 
 	function getApplication(): Application;
 
