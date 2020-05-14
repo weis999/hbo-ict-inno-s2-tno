@@ -43,13 +43,14 @@ class WordPress extends BaseIntegration {
 	}
 
 	function registerMetaBoxes(): void {
-		BaseIntegration::forAllModels(function (Model $model) {
+		$model = $this->utility->call(BaseUtility::GET_CURRENT_MODEL);
+		if (!empty($model)) {
 			$hook = 'add_meta_boxes_'.$model->getTypeName();
 			$this->utility->call(WP::ADD_ACTION, $hook, function () use ($model) {
 				$this->registerModelFields($model);
 				$this->registerModelRelations($model);
 			});
-		});
+		}
 	}
 
 	function registerModelFields(Model $model): void {

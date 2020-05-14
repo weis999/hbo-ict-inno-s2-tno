@@ -107,7 +107,7 @@ class WordPressPostTypes extends BaseModelManager {
 		}
 
 		$currentModel = $this->utility->call(BaseUtility::GET_CURRENT_MODEL);
-		$currentModelAttrs = $currentModel->getAttributes();
+		$currentModelAttrs = empty($currentModel) ? [] : $currentModel->getAttributes();
 		if (array_key_exists(Constants::TYPE_INSTANCE_IDENTIFIER_ATTR, $currentModelAttrs)) {
 			return $currentModelAttrs[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
 		}

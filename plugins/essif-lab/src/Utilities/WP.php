@@ -79,8 +79,16 @@ class WP extends BaseUtility {
 		], $args)));
 	}
 
-	static function getCurrentModel(): Model {
+	static function getCurrentModel(): ?Model {
 		global $post;
+
+		if (empty($post) && array_key_exists('post', $_GET)) {
+			$post = get_post($_GET['post']);
+		}
+
+		if (empty($post)) {
+			return null;
+		}
 
 		return self::modelFactory($post->to_array());
 	}
