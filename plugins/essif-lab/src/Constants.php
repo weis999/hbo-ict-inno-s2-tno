@@ -25,7 +25,7 @@ abstract class Constants {
 
 	const ACTION_NAME_REMOVE_RELATION = 'remove_relation';
 
-	const MANAGER_TYPE_ID_CRITERIA_NAME = 'post_type';
+	const MODEL_TYPE_INDICATOR = 'post_type';
 
 	const MANAGER_TYPE_RELATION_ID_NAME = 'relation';
 

@@ -75,7 +75,7 @@ class WP extends BaseUtility {
 			return self::modelFactory($post->to_array());
 		}, get_posts(array_merge([
 			'numberposts' => -1,
-			'post_type' => 'any',
+			Constants::MODEL_TYPE_INDICATOR => 'any',
 		], $args)));
 	}
 
@@ -86,6 +86,10 @@ class WP extends BaseUtility {
 			$post = get_post($_GET['post']);
 		}
 
+		if (empty($post) && array_key_exists(Constants::MODEL_TYPE_INDICATOR, $_GET)) {
+			return self::modelFactory([Constants::MODEL_TYPE_INDICATOR => $_GET[Constants::MODEL_TYPE_INDICATOR]]);
+		}
+
 		if (empty($post)) {
 			return null;
 		}
@@ -94,7 +98,7 @@ class WP extends BaseUtility {
 	}
 
 	private static function modelFactory(array $args): Model {
-		$type = array_key_exists(Constants::MANAGER_TYPE_ID_CRITERIA_NAME, $args) ? $args[Constants::MANAGER_TYPE_ID_CRITERIA_NAME] : '';
+		$type = array_key_exists(Constants::MODEL_TYPE_INDICATOR, $args) ? $args[Constants::MODEL_TYPE_INDICATOR] : '';
 
 		$className = implode('', array_map('ucfirst', explode(' ', str_replace('-', ' ', $type))));
 		$FQN = Constants::TYPE_NAMESPACE.'\\'.$className;

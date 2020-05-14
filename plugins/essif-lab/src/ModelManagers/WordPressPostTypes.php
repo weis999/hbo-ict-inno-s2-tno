@@ -32,7 +32,7 @@ class WordPressPostTypes extends BaseModelManager {
 
 	function select(Model $model, array $criteria = []): array {
 		$args = array_merge([
-			Constants::MANAGER_TYPE_ID_CRITERIA_NAME => $model->getTypeName(),
+			Constants::MODEL_TYPE_INDICATOR => $model->getTypeName(),
 		], $criteria);
 
 		return $this->utility->call(BaseUtility::GET_MODELS, $args);
