@@ -5,6 +5,7 @@ namespace TNO\EssifLab\Tests\Integrations;
 use Closure;
 use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\WordPress;
+use TNO\EssifLab\Tests\Stubs\ModelRenderer;
 use TNO\EssifLab\Tests\TestCase;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\WordPress as WP;
@@ -128,11 +129,10 @@ class WordPressTest extends TestCase {
     function can_get_form_items_from_each_model_relation() {
         $this->subject->install();
 
-        $renderWasCalled = $this->renderer->isRenderListAndFormViewCalled();
+		$renderWasCalled = $this->renderer->isCalled(ModelRenderer::LIST_AND_FORM_VIEW_RENDERER);
         $this->assertTrue($renderWasCalled);
 
-        $attrs = $this->renderer->getAttrsParamWhereRenderListAndFormViewWasCalledWith();
-
+        $attrs = $this->renderer->getAttrsItsCalledWith(ModelRenderer::LIST_AND_FORM_VIEW_RENDERER);
         $this->assertNotEmpty($attrs);
         $this->assertNotEmpty($attrs[0]->getValue());
 
@@ -146,11 +146,10 @@ class WordPressTest extends TestCase {
     function can_get_list_items_from_each_model_relation() {
         $this->subject->install();
 
-        $renderWasCalled = $this->renderer->isRenderListAndFormViewCalled();
+        $renderWasCalled = $this->renderer->isCalled(ModelRenderer::LIST_AND_FORM_VIEW_RENDERER);
         $this->assertTrue($renderWasCalled);
 
-        $attrs = $this->renderer->getAttrsParamWhereRenderListAndFormViewWasCalledWith();
-
+		$attrs = $this->renderer->getAttrsItsCalledWith(ModelRenderer::LIST_AND_FORM_VIEW_RENDERER);
         $this->assertNotEmpty($attrs);
         $this->assertNotEmpty($attrs[1]->getValue());
         $this->assertNotEmpty($attrs[1]->getValue()[0]->getValue());
@@ -162,4 +161,29 @@ class WordPressTest extends TestCase {
         //Description of the model
         $this->assertEquals('world', $attrs[1]->getValue()[0]->getValue()[1]->getLabel());
     }
+
+    /** @test */
+	function model_fields_are_added_after_post_title() {
+		$this->subject->install();
+
+		$history = $this->utility->getHistoryByFuncName(WP::ADD_ACTION);
+		$this->assertNotEmpty($history);
+
+		$afterTitle = array_filter($history, function ($entry) {
+			return $entry->getParams()[0] === 'edit_form_after_title';
+		});
+		$this->assertNotEmpty($afterTitle);
+	}
+
+    /** @test */
+	function issuer_model_was_rendered_with_signature_field() {
+		$this->subject->install();
+
+		$renderWasCalled = $this->renderer->isCalled(ModelRenderer::FIELD_SIGNATURE_RENDERER);
+		$this->assertTrue($renderWasCalled);
+
+		$model = $this->renderer->getModelItsCalledWith(ModelRenderer::FIELD_SIGNATURE_RENDERER);
+		$this->assertNotEmpty($model);
+		$this->assertEquals('issuer', $model->getTypeName());
+	}
 }

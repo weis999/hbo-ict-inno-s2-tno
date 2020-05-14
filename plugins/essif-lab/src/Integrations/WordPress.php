@@ -20,6 +20,7 @@ class WordPress extends BaseIntegration {
 	function install(): void {
 		$this->utility->call(WP::ADD_ACTION, 'admin_menu', [$this, 'registerAdminMenu']);
 		$this->utility->call(WP::ADD_ACTION, 'init', [$this, 'registerModelTypes']);
+		$this->utility->call(WP::ADD_ACTION, 'edit_form_after_title', [$this, 'registerModelFields']);
 		$this->registerMetaBoxes();
 	}
 
@@ -40,6 +41,15 @@ class WordPress extends BaseIntegration {
 	function registerModelType(Model $model): void {
 		$args = $this->parseTypeArgs($model);
 		$this->utility->call(BaseUtility::CREATE_MODEL_TYPE, $model->getTypeName(), $args);
+	}
+
+	function registerModelFields(): void {
+		BaseIntegration::forAllModels(function (Model $model) {
+			$fields = $model->getFields();
+			if (in_array(Constants::FIELD_TYPE_SIGNATURE, $fields)) {
+				$this->renderer->renderFieldSignature($this, $model);
+			}
+		});
 	}
 
 	function registerMetaBoxes(): void {
@@ -65,8 +75,8 @@ class WordPress extends BaseIntegration {
 	}
 
 	function renderModelRelation(Model $parent, Model $related): string {
-        $formItems = $this->generateFormItems($related);
-        $listItems = $this->generateListItems($parent);
+		$formItems = $this->generateFormItems($related);
+		$listItems = $this->generateListItems($parent);
 		$values = [
 			new MultiDimensional($formItems, TypeList::FORM_ITEMS),
 			new MultiDimensional($listItems, TypeList::LIST_ITEMS),
@@ -131,31 +141,31 @@ class WordPress extends BaseIntegration {
 		return array_merge($default, $args);
 	}
 
-    /**
-     * @param Model $related
-     * @return array
-     */
-    public function generateFormItems(Model $related): array
-    {
-        return array_map(function (Model $model) {
-            $attr = $model->getAttributes();
-            $ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
-            return new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
-        }, $this->manager->select($related));
-    }
+	/**
+	 * @param Model $related
+	 * @return array
+	 */
+	public function generateFormItems(Model $related): array {
+		return array_map(function (Model $model) {
+			$attr = $model->getAttributes();
+			$ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
 
-    /**
-     * @param Model $parent
-     * @return array
-     */
-    public function generateListItems(Model $parent): array
-    {
-        return array_map(function (Model $model) {
-            $attr = $model->getAttributes();
-            $ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
-            $title = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
-            $description = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR]);
-            return new MultiDimensional([$title, $description]);
-        }, $this->manager->selectAllRelations($parent));
-    }
+			return new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
+		}, $this->manager->select($related));
+	}
+
+	/**
+	 * @param Model $parent
+	 * @return array
+	 */
+	public function generateListItems(Model $parent): array {
+		return array_map(function (Model $model) {
+			$attr = $model->getAttributes();
+			$ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+			$title = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
+			$description = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR]);
+
+			return new MultiDimensional([$title, $description]);
+		}, $this->manager->selectAllRelations($parent));
+	}
 }

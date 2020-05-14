@@ -11,4 +11,8 @@ class WordPressMetaBox implements Contracts\ModelRenderer {
 		$view = new TypeList($integration, $model, $attrs);
 		return $view->render();
 	}
+
+	function renderFieldSignature(Integration $integration, Model $model, array $attrs = []): string {
+		return '';
+	}
 }
