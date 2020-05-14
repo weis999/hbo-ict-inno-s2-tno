@@ -41,7 +41,7 @@ class WordPressTest extends TestCase {
 	function register_model_relations_as_meta_boxes() {
 		$this->subject->registerModelRelations($this->model);
 
-		$id = 'model_model';
+		$id = 'model_relation_model';
 		$title = 'Models';
 		$post_type = 'model';
 		$is_closure = function ($x): bool {
@@ -90,23 +90,15 @@ class WordPressTest extends TestCase {
 		$history = $this->utility->getHistoryByFuncName(WP::ADD_META_BOX);
 		$this->assertNotEmpty($history);
 
-		/**
-		 * Relations
-		 * - Credential:
-		 *   1. Input
-		 *   2. Issuer
-		 *   3. Schema
-		 * - Hook:
-		 *   4. Target
-		 * - ValidationPolicy:
-		 *   5. Hook
-		 *   6. Credential
-		 */
 		$relations = array_filter($history, function ($entry) {
 			$id = $entry->getParams()[0];
 			return strpos($id, '_relation_') !== false;
 		});
-		$this->assertCount(6, $relations);
+		$this->assertCount(1, $relations);
+
+		$entry = current($relations);
+		$params = $entry->getParams();
+		$this->assertEquals('Models', $params[1]);
 	}
 
 	/** @test */

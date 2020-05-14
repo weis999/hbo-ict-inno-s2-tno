@@ -59,6 +59,6 @@ class ModelRenderer implements \TNO\EssifLab\ModelRenderers\Contracts\ModelRende
 		$this->lastIntegrationItsCalledWith[$renderer] = $integration;
 		$this->lastModelItsCalledWith[$renderer] = $model;
 		$this->lastAttrsItsCalledWith[$renderer] = $attrs;
-		return 'hello world';
+		return "@ModelRendererStub\n";
 	}
 }
