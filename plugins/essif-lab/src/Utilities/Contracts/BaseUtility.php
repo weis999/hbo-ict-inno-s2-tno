@@ -9,6 +9,8 @@ abstract class BaseUtility implements Utility {
 
 	public const GET_MODELS = 'getModels';
 
+	public const GET_CURRENT_MODEL = 'getCurrentModel';
+
 	public const DELETE_MODEL = 'deleteModel';
 
 	public const CREATE_MODEL_TYPE = 'createModelType';
@@ -31,6 +33,7 @@ abstract class BaseUtility implements Utility {
 			self::CREATE_MODEL => [static::class, 'createModel'],
 			self::DELETE_MODEL => [static::class, 'deleteModel'],
 			self::GET_MODELS => [static::class, 'getModels'],
+			self::GET_CURRENT_MODEL => [static::class, 'getCurrentModel'],
 			self::CREATE_MODEL_META => [static::class, 'createModelMeta'],
 			self::DELETE_MODEL_META => [static::class, 'deleteModelMeta'],
 			self::GET_MODEL_META => [static::class, 'getModelMeta'],

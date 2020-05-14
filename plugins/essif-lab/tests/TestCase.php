@@ -8,6 +8,7 @@ use TNO\EssifLab\Tests\Stubs\Application;
 use TNO\EssifLab\Tests\Stubs\Integration;
 use TNO\EssifLab\Tests\Stubs\Model;
 use TNO\EssifLab\Tests\Stubs\ModelManager;
+use TNO\EssifLab\Tests\Stubs\ModelRenderer;
 use TNO\EssifLab\Tests\Stubs\Utility;
 
 abstract class TestCase extends PHPUnitTestCase {
@@ -24,6 +25,8 @@ abstract class TestCase extends PHPUnitTestCase {
 
 	protected $model;
 
+	protected $renderer;
+
 	protected function setUp(): void {
 		parent::setUp();
 		if (! defined('ABSPATH')) {
@@ -31,8 +34,9 @@ abstract class TestCase extends PHPUnitTestCase {
 		};
 		$this->application = new Application('name', 'namespace', __DIR__);
 		$this->utility = new Utility();
+		$this->renderer = new ModelRenderer();
 		$this->manager = new ModelManager($this->application, $this->utility);
-		$this->integration = new Integration($this->application, $this->manager, $this->utility);
+		$this->integration = new Integration($this->application, $this->manager, $this->renderer, $this->utility);
 		$this->model = new Model([
 			Constants::TYPE_INSTANCE_TITLE_ATTR => 'hello',
 			Constants::TYPE_INSTANCE_DESCRIPTION_ATTR => 'world',

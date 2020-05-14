@@ -7,6 +7,7 @@ use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\WordPress as WP;
+use TNO\EssifLab\Views\Items\Displayable;
 use TNO\EssifLab\Views\Items\MultiDimensional;
 use TNO\EssifLab\Views\TypeList;
 
@@ -18,7 +19,7 @@ class WordPress extends BaseIntegration {
 
 	function install(): void {
 		$this->utility->call(WP::ADD_ACTION, 'admin_menu', [$this, 'registerAdminMenu']);
-		$this->utility->call(WP::ADD_ACTION, 'init', [$this, 'registerPostTypes']);
+		$this->utility->call(WP::ADD_ACTION, 'init', [$this, 'registerModelTypes']);
 		$this->registerMetaBoxes();
 	}
 
@@ -30,7 +31,7 @@ class WordPress extends BaseIntegration {
 		$this->utility->call(WP::ADD_NAV_ITEM, $title, $capability, $slug, $icon);
 	}
 
-	function registerPostTypes(): void {
+	function registerModelTypes(): void {
 		BaseIntegration::forAllModels(function (Model $instance) {
 			$this->registerModelType($instance);
 		});
@@ -64,12 +65,14 @@ class WordPress extends BaseIntegration {
 	}
 
 	function renderModelRelation(Model $parent, Model $related): string {
+        $formItems = $this->generateFormItems($related);
+        $listItems = $this->generateListItems($parent);
 		$values = [
-			new MultiDimensional([], TypeList::FORM_ITEMS),
-			new MultiDimensional([], TypeList::LIST_ITEMS),
+			new MultiDimensional($formItems, TypeList::FORM_ITEMS),
+			new MultiDimensional($listItems, TypeList::LIST_ITEMS),
 		];
 
-		return (new TypeList($this, $related, $values))->render();
+		return $this->renderer->renderListAndFormView($this, $related, $values);
 	}
 
 	static function getAddTypeLink(string $postType) {
@@ -127,4 +130,32 @@ class WordPress extends BaseIntegration {
 
 		return array_merge($default, $args);
 	}
+
+    /**
+     * @param Model $related
+     * @return array
+     */
+    public function generateFormItems(Model $related): array
+    {
+        return array_map(function (Model $model) {
+            $attr = $model->getAttributes();
+            $ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+            return new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
+        }, $this->manager->select($related));
+    }
+
+    /**
+     * @param Model $parent
+     * @return array
+     */
+    public function generateListItems(Model $parent): array
+    {
+        return array_map(function (Model $model) {
+            $attr = $model->getAttributes();
+            $ID = $attr[Constants::TYPE_INSTANCE_IDENTIFIER_ATTR];
+            $title = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_TITLE_ATTR]);
+            $description = new Displayable($ID, $attr[Constants::TYPE_INSTANCE_DESCRIPTION_ATTR]);
+            return new MultiDimensional([$title, $description]);
+        }, $this->manager->selectAllRelations($parent));
+    }
 }

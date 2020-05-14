@@ -14,7 +14,7 @@ class WordPressTest extends TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->subject = new WordPress($this->application, $this->manager, $this->utility);
+		$this->subject = new WordPress($this->application, $this->manager, $this->renderer, $this->utility);
 	}
 
 	/** @test */
@@ -106,11 +106,9 @@ class WordPressTest extends TestCase {
 	function registers_menu_item_when_installing() {
 		$this->subject->install();
 
-		$page_title = $this->application->getName();
-		$menu_title = $page_title;
+		$title = $this->application->getName();
 		$capability = Constants::ADMIN_MENU_CAPABILITY;
 		$menu_slug = $this->application->getNamespace();
-		$callback = null;
 		$icon_url = Constants::ADMIN_MENU_ICON_URL;
 		
 		$history = $this->utility->getHistoryByFuncName(WP::ADD_NAV_ITEM);
@@ -120,11 +118,48 @@ class WordPressTest extends TestCase {
 		$entry = current($history);
 		$params = $entry->getParams();
 		
-		$this->assertEquals($page_title, $params[0]);
-		$this->assertEquals($menu_title, $params[1]);
-		$this->assertEquals($capability, $params[2]);
-		$this->assertEquals($menu_slug, $params[3]);
-		$this->assertEquals($callback, $params[4]);
-		$this->assertEquals($icon_url, $params[5]);
+		$this->assertEquals($title, $params[0]);
+		$this->assertEquals($capability, $params[1]);
+		$this->assertEquals($menu_slug, $params[2]);
+		$this->assertEquals($icon_url, $params[3]);
 	}
+
+	/** @test */
+    function can_get_form_items_from_each_model_relation() {
+        $this->subject->install();
+
+        $renderWasCalled = $this->renderer->isRenderListAndFormViewCalled();
+        $this->assertTrue($renderWasCalled);
+
+        $attrs = $this->renderer->getAttrsParamWhereRenderListAndFormViewWasCalledWith();
+
+        $this->assertNotEmpty($attrs);
+        $this->assertNotEmpty($attrs[0]->getValue());
+
+        // ID of the model
+        $this->assertEquals(1, $attrs[0]->getValue()[0]->getValue());
+        // Title of the model
+        $this->assertEquals('hello', $attrs[0]->getValue()[0]->getLabel());
+    }
+
+    /** @test */
+    function can_get_list_items_from_each_model_relation() {
+        $this->subject->install();
+
+        $renderWasCalled = $this->renderer->isRenderListAndFormViewCalled();
+        $this->assertTrue($renderWasCalled);
+
+        $attrs = $this->renderer->getAttrsParamWhereRenderListAndFormViewWasCalledWith();
+
+        $this->assertNotEmpty($attrs);
+        $this->assertNotEmpty($attrs[1]->getValue());
+        $this->assertNotEmpty($attrs[1]->getValue()[0]->getValue());
+
+        //ID of the model
+        $this->assertEquals(1, $attrs[1]->getValue()[0]->getValue()[0]->getValue());
+        //Title of the model
+        $this->assertEquals('hello', $attrs[1]->getValue()[0]->getValue()[0]->getLabel());
+        //Description of the model
+        $this->assertEquals('world', $attrs[1]->getValue()[0]->getValue()[1]->getLabel());
+    }
 }

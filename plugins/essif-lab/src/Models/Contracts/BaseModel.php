@@ -47,32 +47,32 @@ abstract class BaseModel implements Model {
 	}
 
 	public function getTypeArgs(): array {
-		return array_merge(Constants::TYPE_DEFAULT_TYPE_ARGS, self::parseArray($this->typeArgs));
+		return array_merge(Constants::TYPE_DEFAULT_TYPE_ARGS, self::isArray($this->typeArgs));
 	}
 
 	public function getAttributes(): array {
-		return self::parseArray($this->attributes);
+		return self::isArray($this->attributes);
 	}
 
 	public function setAttributes($value): void {
-		$this->attributes = array_filter(self::parseArray($value), function ($key) {
+		$this->attributes = array_filter(self::isArray($value), function ($key) {
 			return in_array($key, $this->getAttributeNames());
 		}, ARRAY_FILTER_USE_KEY);
 	}
 
 	public function getAttributeNames(): array {
-		return array_merge(Constants::TYPE_DEFAULT_ATTRIBUTE_NAMES, self::parseArray($this->attributeNames));
+		return array_merge(Constants::TYPE_DEFAULT_ATTRIBUTE_NAMES, self::isArray($this->attributeNames));
 	}
 
 	public function getFields(): array {
-		return array_merge(Constants::TYPE_DEFAULT_FIELDS, self::parseArray($this->fields));
+		return array_merge(Constants::TYPE_DEFAULT_FIELDS, self::isArray($this->fields));
 	}
 
 	public function getRelations(): array {
-		return self::parseArray($this->relations);
+		return self::isArray($this->relations);
 	}
 
-	private static function parseArray($value): array {
+	private static function isArray($value): array {
 		return is_array($value) ? $value : [];
 	}
 }
