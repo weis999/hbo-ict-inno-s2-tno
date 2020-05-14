@@ -7,7 +7,7 @@ use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
 use TNO\EssifLab\Utilities\Exceptions\InvalidModelType;
 
-class WordPress extends BaseUtility {
+class WP extends BaseUtility {
 	const ADD_ACTION = 'add_action';
 
 	const ADD_FILTER = 'add_filter';
@@ -79,6 +79,12 @@ class WordPress extends BaseUtility {
 		], $args)));
 	}
 
+	static function getCurrentModel(): Model {
+		global $post;
+
+		return self::modelFactory($post->to_array());
+	}
+
 	private static function modelFactory(array $args): Model {
 		$type = array_key_exists(Constants::MANAGER_TYPE_ID_CRITERIA_NAME, $args) ? $args[Constants::MANAGER_TYPE_ID_CRITERIA_NAME] : '';
 
@@ -117,12 +123,6 @@ class WordPress extends BaseUtility {
 		}
 
 		return [];
-	}
-
-	static function getCurrentModel(): array {
-		global $post;
-
-		return $post->to_array();
 	}
 
 	static function createModelMeta(int $postId, string $key, $value): bool {

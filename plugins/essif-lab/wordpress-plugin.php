@@ -11,7 +11,10 @@
 defined('ABSPATH') or die();
 
 // Load all classes of this program automatically
-require plugin_dir_path(__FILE__).'vendor/autoload.php';
+$autoloader = __DIR__.'/vendor/autoload.php';
+if (file_exists($autoloader)) {
+	require_once($autoloader);
+}
 
 use TNO\EssifLab\Applications\Contracts\Application;
 use TNO\EssifLab\Applications\Plugin;
@@ -22,11 +25,12 @@ use TNO\EssifLab\ModelManagers\WordPressPostTypes;
 use TNO\EssifLab\ModelRenderers\Contracts\ModelRenderer;
 use TNO\EssifLab\ModelRenderers\WordPressMetaBox;
 use TNO\EssifLab\Utilities\Contracts\Utility;
-use TNO\EssifLab\Utilities\WordPress as WP;
+use TNO\EssifLab\Utilities\WP;
 
 // Make sure the WP Plugin API is loaded
-if (! function_exists('get_plugin_data')) {
-	require_once(ABSPATH.'wp-admin/includes/plugin.php');
+$requirePlugin = ABSPATH.'wp-admin/includes/plugin.php';
+if (! function_exists('get_plugin_data') && file_exists($requirePlugin)) {
+	require_once($requirePlugin);
 }
 
 $getApplication = function (): Application {

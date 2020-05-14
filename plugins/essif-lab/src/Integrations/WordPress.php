@@ -6,7 +6,7 @@ use TNO\EssifLab\Constants;
 use TNO\EssifLab\Integrations\Contracts\BaseIntegration;
 use TNO\EssifLab\Models\Contracts\Model;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
-use TNO\EssifLab\Utilities\WordPress as WP;
+use TNO\EssifLab\Utilities\WP;
 use TNO\EssifLab\Views\Items\Displayable;
 use TNO\EssifLab\Views\Items\MultiDimensional;
 use TNO\EssifLab\Views\TypeList;
@@ -20,7 +20,6 @@ class WordPress extends BaseIntegration {
 	function install(): void {
 		$this->utility->call(WP::ADD_ACTION, 'admin_menu', [$this, 'registerAdminMenu']);
 		$this->utility->call(WP::ADD_ACTION, 'init', [$this, 'registerModelTypes']);
-		$this->utility->call(WP::ADD_ACTION, 'edit_form_after_title', [$this, 'registerModelFields']);
 		$this->registerMetaBoxes();
 	}
 
@@ -43,34 +42,57 @@ class WordPress extends BaseIntegration {
 		$this->utility->call(BaseUtility::CREATE_MODEL_TYPE, $model->getTypeName(), $args);
 	}
 
-	function registerModelFields(): void {
-		BaseIntegration::forAllModels(function (Model $model) {
-			$fields = $model->getFields();
-			if (in_array(Constants::FIELD_TYPE_SIGNATURE, $fields)) {
-				$this->renderer->renderFieldSignature($this, $model);
-			}
-		});
-	}
-
 	function registerMetaBoxes(): void {
 		BaseIntegration::forAllModels(function (Model $model) {
 			$hook = 'add_meta_boxes_'.$model->getTypeName();
 			$this->utility->call(WP::ADD_ACTION, $hook, function () use ($model) {
+				$this->registerModelFields($model);
 				$this->registerModelRelations($model);
 			});
 		});
 	}
 
+	function registerModelFields(Model $model): void {
+		$fields = $model->getFields();
+		$screen = $model->getTypeName();
+		foreach ($fields as $field) {
+			$output = $this->renderModelField($field, $model);
+			if (! empty($output)) {
+				$id = $screen.'_field_'.$field;
+				$title = ucfirst($field);
+				$callback = function () use ($output) {
+					print $output;
+				};
+				$this->utility->call(WP::ADD_META_BOX, $id, $title, $callback, $screen);
+			}
+		}
+	}
+
+	function renderModelField(string $field, Model $model): string {
+		switch ($field) {
+			case Constants::FIELD_TYPE_SIGNATURE:
+				var_dump($this->renderer->renderFieldSignature($this, $model));
+
+				return $this->renderer->renderFieldSignature($this, $model);
+
+			default:
+				return '';
+		}
+	}
+
 	function registerModelRelations(Model $model): void {
 		$classes = $model->getRelations();
-		BaseIntegration::forEachModel($classes, function (Model $related) use ($model) {
-			$id = $model->getTypeName().'_'.$related->getTypeName();
-			$title = self::toTitleCase($related->getPluralName());
-			$callback = function () use ($model, $related) {
-				print $this->renderModelRelation($model, $related);
-			};
-			$screen = $model->getTypeName();
-			$this->utility->call(WP::ADD_META_BOX, $id, $title, $callback, $screen);
+		$screen = $model->getTypeName();
+		BaseIntegration::forEachModel($classes, function (Model $related) use ($model, $screen) {
+			$output = $this->renderModelRelation($model, $related);
+			if (! empty($output)) {
+				$id = $screen.'_relation_'.$related->getTypeName();
+				$title = self::toTitleCase($related->getPluralName());
+				$callback = function () use ($output) {
+					print $output;
+				};
+				$this->utility->call(WP::ADD_META_BOX, $id, $title, $callback, $screen);
+			}
 		});
 	}
 

@@ -8,7 +8,7 @@ use TNO\EssifLab\Integrations\WordPress;
 use TNO\EssifLab\Tests\Stubs\ModelRenderer;
 use TNO\EssifLab\Tests\TestCase;
 use TNO\EssifLab\Utilities\Contracts\BaseUtility;
-use TNO\EssifLab\Utilities\WordPress as WP;
+use TNO\EssifLab\Utilities\WP;
 
 class WordPressTest extends TestCase {
 	protected $subject;
@@ -88,6 +88,8 @@ class WordPressTest extends TestCase {
 		$this->subject->install();
 
 		$history = $this->utility->getHistoryByFuncName(WP::ADD_META_BOX);
+		$this->assertNotEmpty($history);
+
 		/**
 		 * Relations
 		 * - Credential:
@@ -100,7 +102,11 @@ class WordPressTest extends TestCase {
 		 *   5. Hook
 		 *   6. Credential
 		 */
-		$this->assertCount(6, $history);
+		$relations = array_filter($history, function ($entry) {
+			$id = $entry->getParams()[0];
+			return strpos($id, '_relation_') !== false;
+		});
+		$this->assertCount(6, $relations);
 	}
 
 	/** @test */
@@ -163,27 +169,16 @@ class WordPressTest extends TestCase {
     }
 
     /** @test */
-	function model_fields_are_added_after_post_title() {
+	function model_fields_are_loaded() {
 		$this->subject->install();
 
-		$history = $this->utility->getHistoryByFuncName(WP::ADD_ACTION);
+		$history = $this->utility->getHistoryByFuncName(WP::ADD_META_BOX);
 		$this->assertNotEmpty($history);
 
-		$afterTitle = array_filter($history, function ($entry) {
-			return $entry->getParams()[0] === 'edit_form_after_title';
+		$fields = array_filter($history, function ($entry) {
+			$id = $entry->getParams()[0];
+			return strpos($id, '_field_') !== false;
 		});
-		$this->assertNotEmpty($afterTitle);
-	}
-
-    /** @test */
-	function issuer_model_was_rendered_with_signature_field() {
-		$this->subject->install();
-
-		$renderWasCalled = $this->renderer->isCalled(ModelRenderer::FIELD_SIGNATURE_RENDERER);
-		$this->assertTrue($renderWasCalled);
-
-		$model = $this->renderer->getModelItsCalledWith(ModelRenderer::FIELD_SIGNATURE_RENDERER);
-		$this->assertNotEmpty($model);
-		$this->assertEquals('issuer', $model->getTypeName());
+		$this->assertCount(1, $fields);
 	}
 }
