@@ -10,10 +10,9 @@
 
 defined('ABSPATH') or die();
 
-// Load all classes of this program automatically
-$autoloader = __DIR__.'/vendor/autoload.php';
-if (file_exists($autoloader)) {
-	require_once($autoloader);
+$classAutoloader = __DIR__.'/vendor/autoload.php';
+if (file_exists($classAutoloader)) {
+	require_once($classAutoloader);
 }
 
 use TNO\EssifLab\Applications\Contracts\Application;
@@ -27,10 +26,9 @@ use TNO\EssifLab\ModelRenderers\WordPressMetaBox;
 use TNO\EssifLab\Utilities\Contracts\Utility;
 use TNO\EssifLab\Utilities\WP;
 
-// Make sure the WP Plugin API is loaded
-$requirePlugin = ABSPATH.'wp-admin/includes/plugin.php';
-if (! function_exists('get_plugin_data') && file_exists($requirePlugin)) {
-	require_once($requirePlugin);
+$wpPluginApi = ABSPATH.'wp-admin/includes/plugin.php';
+if (! function_exists('get_plugin_data') && file_exists($wpPluginApi)) {
+	require_once($wpPluginApi);
 }
 
 $getApplication = function (): Application {
@@ -71,5 +69,4 @@ $getIntegration = function (Application $application) use (
 	return new WordPress($application, $getModelManager($application), $getModelRenderer(), $getUtility());
 };
 
-// Install the integration
 $getIntegration($getApplication())->install();
