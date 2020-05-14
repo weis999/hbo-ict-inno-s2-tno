@@ -71,8 +71,6 @@ class WordPress extends BaseIntegration {
 	function renderModelField(string $field, Model $model): string {
 		switch ($field) {
 			case Constants::FIELD_TYPE_SIGNATURE:
-				var_dump($this->renderer->renderFieldSignature($this, $model));
-
 				return $this->renderer->renderFieldSignature($this, $model);
 
 			default:
