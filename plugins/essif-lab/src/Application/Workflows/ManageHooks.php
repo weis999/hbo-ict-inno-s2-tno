@@ -6,6 +6,7 @@ use TNO\EssifLab\Contracts\Abstracts\Workflow;
 
 class ManageHooks extends Workflow {
 	public static function options(): array {
+        apply_filters('essif_options_hooks_total', []);
         return apply_filters('essif_options_hooks', []);
 		//return ['context' => $context, 'target' => $target];
 	}

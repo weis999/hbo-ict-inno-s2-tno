@@ -6,16 +6,23 @@ add_filter('essif_options_hooks', function($hooks) use ($fc) {
     return array_merge($hooks, ['context' => ['ContactForm7' => 'ContactForm7']]);
 });
 
-// Hooks
 add_filter('essif_options_hooks', function($hooks) use ($fc) {
     return array_merge($hooks, $fc->getAllFormTitles());
 });
 
-// Credentials
-add_filter('essif_options_hooks_id', function($hooks) use ($fc) {
-    return array_merge($hooks, $fc->getFormFields(13));
+add_filter('essif_options_hooks_total', function($hooks) use ($fc) {
+    return array_merge($hooks, $fc->getAllFormsFields());
 });
 
+add_filter('essif_options_hooks_id', function($hooks) use ($fc) {
+    return array_merge($hooks, $fc->getFormFields(12));
+});
+
+/* Req info:
+Hook: CF7
+Validation policy: ??
+Target: Welk CF7?
+*/
 
 class CF7Hooks {
 
@@ -26,10 +33,6 @@ class CF7Hooks {
     }
 
     public function getAllFormTitles() {
-//        $target = ['bbb' => 'bbb', 'bar' => 'bar'];
-//        $res = ['context' => $context, 'target' => $target];
-//        var_dump($res);
-
         $cf7Forms = $this->getAllForms();
         $post_ids = wp_list_pluck( $cf7Forms , 'ID' );
         $form_titles = wp_list_pluck( $cf7Forms , 'post_title' );
@@ -42,6 +45,12 @@ class CF7Hooks {
         $regex = '/(?<=\[)[^]\s]+(?=])/';
         preg_match_all($regex, $post_content, $fields);
         $uniqueFields = array_unique($fields[0]);
+//        print_r($post_content);
+//        echo "</br>";
+//        print_r($uniqueFields);
+//        echo "</br>";
+//        echo "</br>";
+//        echo "</br>";
         return $uniqueFields;
     }
 
@@ -50,5 +59,15 @@ class CF7Hooks {
         $fields = $this->extractFields($post);
         $res = ['credential' => $fields];
         return $res;
+    }
+
+    public function getAllFormsFields() {
+        $forms = $this->getAllForms();
+        $arrayForms = array();
+        foreach ($forms as $form) {
+            array_push($arrayForms, array($form->post_title, $this->extractFields($form)));
+        }
+
+        //print_r($arrayForms);
     }
 }

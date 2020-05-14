@@ -12,6 +12,8 @@ jQuery(document).ready(function( $ ) {
             success: function (data) {
                 if (data != null) {
                     console.log(data);
+                    $('input[name=postalCode]').val(data["credentialData"]["data"]["postcalCode"]);
+                    $('input[name=streetAddress]').val(data["credentialData"]["data"]["streetAddress"]);
                 }
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {

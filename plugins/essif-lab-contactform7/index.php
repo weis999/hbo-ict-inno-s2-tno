@@ -15,6 +15,6 @@ if (!function_exists('get_plugin_data')) {
 }
 
 // Initialize requirements
-require_once('Controllers/Initialize/CF7Button.php');
-require_once('Controllers/Initialize/Script.php');
-require_once('hooks.php');
+require_once('Controllers/CF7Button.php');
+require_once('Controllers/Script.php');
+require_once('Controllers/Hooks.php');
